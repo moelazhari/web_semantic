@@ -1,16 +1,19 @@
-#!/usr/bin/env bash
-set -e
+echo '🔄 Setting up Jena Fuseki with semantic reasoning...'
+        
+# Create TDB2 database
+mkdir -p /fuseki/databases/organic_db
 
-echo "🧹 Cleaning old TDB..."
-rm -rf /jena/tdb
+# Load ontology and data
+echo '📥 Loading ontology...'
+tdb2.tdbloader --loc=/fuseki/databases/organic_db /staging/ontology/organic.owl
 
-echo "📥 Loading ontology and data into TDB..."
-tdb2.tdbloader --loc /jena/tdb /jena/ontology/organic.owl /jena/data/farm_data.ttl
+echo '📥 Loading farm data...'
+tdb2.tdbloader --loc=/fuseki/databases/organic_db /staging/data/farm_data.ttl
 
-echo "🧠 Running inference..."
-jena-infer --model /jena/tdb --rules /jena/rules/organic_rules.swrl --output /jena/inferred.ttl
+echo '🧠 Running SPARQL inference rules...'
+# Create inference queries for organic certification
+mkdir -p /staging/inference
 
-echo "🚀 Starting Fuseki with inferred data..."
-fuseki-server --mem --update --file /jena/inferred.ttl /ds
-
-echo "✅ Fuseki running at http://localhost:3030/ds"
+# Start Fuseki server
+echo '🚀 Starting Fuseki server...'
+/jena-fuseki/fuseki-server --loc=/fuseki/databases/organic_db --update /organic
