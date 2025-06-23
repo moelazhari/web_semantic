@@ -1,0 +1,4 @@
+PREFIX : <http://example.org/organic#>
+SELECT ?farm WHERE {
+  ?farm a :OrganicFarm .
+}

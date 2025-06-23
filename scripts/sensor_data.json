@@ -1,0 +1,6 @@
+[
+  {"id":"1","farm":"FARM1","pesticide":"Glyphosate","value":0.2},
+  {"id":"2","farm":"FARM2","pesticide":"DDT","value":0.05},
+  {"id":"3","farm":"FARM3","pesticide":"Pyrethrin","value":0.1},
+  {"id":"4","farm":"FARM2","pesticide":"Glyphosate","value":0.3}
+]

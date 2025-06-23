@@ -1,0 +1,3 @@
+rdflib
+web3
+python-dotenv

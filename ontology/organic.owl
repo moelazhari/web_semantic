@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://example.org/organic"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:ssn="http://www.w3.org/ns/ssn/">
+    <!-- Classes -->
+    <Declaration><Class IRI="#Farm"/></Declaration>
+    <Declaration><Class IRI="#OrganicFarm"/></Declaration>
+    <Declaration><Class IRI="#NonOrganicFarm"/></Declaration>
+    <Declaration><Class IRI="#SoilSample"/></Declaration>
+    <Declaration><Class IRI="#Observation"/></Declaration>
+    <Declaration><Class IRI="#Pesticide"/></Declaration>
+    <Declaration><Class IRI="#AllowedPesticide"/></Declaration>
+    <Declaration><Class IRI="#Certification"/></Declaration>
+    <!-- Properties -->
+    <Declaration><ObjectProperty IRI="#hasSoilSample"/></Declaration>
+    <Declaration><ObjectProperty IRI="#hasPesticide"/></Declaration>
+    <Declaration><DataProperty IRI="#hasValue"/></Declaration>
+    <Declaration><ObjectProperty IRI="#hasCertification"/></Declaration>
+    <!-- Individuals -->
+    <ClassAssertion>
+        <Class IRI="#AllowedPesticide"/>
+        <NamedIndividual IRI="#Glyphosate"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#AllowedPesticide"/>
+        <NamedIndividual IRI="#Pyrethrin"/>
+    </ClassAssertion>
+</Ontology>

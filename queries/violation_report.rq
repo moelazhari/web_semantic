@@ -1,0 +1,6 @@
+PREFIX : <http://example.org/organic#>
+SELECT ?farm ?pest WHERE {
+  ?farm a :NonOrganicFarm .
+  ?farm :hasSoilSample ?s .
+  ?s :hasPesticide ?pest .
+}

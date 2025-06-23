@@ -1,0 +1,12 @@
+# SWRL rules for compliance
+
+# 1. Non-organic if pesticide not allowed
+Farm(?f) ^ hasSoilSample(?f, ?s) ^ hasPesticide(?s, ?p) ^ 
+  swrlb:notEqual(?p, #Glyphosate) ^ swrlb:notEqual(?p, #Pyrethrin) ->
+    NonOrganicFarm(?f)
+
+# 2. Organic if no rule violation
+Farm(?f) ^ swrlb:notExists(?f, NonOrganicFarm) -> OrganicFarm(?f)
+
+# 3. Assign certification
+OrganicFarm(?f) -> hasCertification(?f, #OrganicCert)

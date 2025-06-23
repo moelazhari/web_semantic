@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  organic_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: organic_app
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - fuseki
+      - ganache
+      - jena
+    ports:
+      - "8000:8000"
+    command: ["python3", "main.py"]
+
+  fuseki:
+    image: stain/jena-fuseki
+    container_name: fuseki
+    ports:
+      - "3030:3030"
+    volumes:
+      - ./ontology:/data/ontology
+      - ./data:/data/data
+      - fuseki_datastore:/fuseki/databases
+    command: [ "fuseki-server", "--tdb2", "--update", "/ds" ]
+
+  ganache:
+    image: trufflesuite/ganache-cli
+    container_name: ganache
+    ports:
+      - "8545:8545"
+
+  jena:
+    image: akrabat/jena
+    container_name: jena_cli
+    working_dir: /jena
+    volumes:
+      - .:/jena
+    entrypoint: ["/jena/jena/run_jena.sh"]
+
+volumes:
+  fuseki_datastore: {}

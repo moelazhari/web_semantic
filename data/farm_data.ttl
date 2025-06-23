@@ -1,0 +1,22 @@
+@prefix ns1: <http://example.org/organic#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:FARM1 ns1:hasSoilSample ns1:Sample_FARM1_1 .
+
+ns1:FARM2 ns1:hasSoilSample ns1:Sample_FARM2_2,
+        ns1:Sample_FARM2_4 .
+
+ns1:FARM3 ns1:hasSoilSample ns1:Sample_FARM3_3 .
+
+ns1:Sample_FARM1_1 ns1:hasPesticide ns1:Glyphosate ;
+    ns1:hasValue "0.2"^^xsd:float .
+
+ns1:Sample_FARM2_2 ns1:hasPesticide ns1:DDT ;
+    ns1:hasValue "0.05"^^xsd:float .
+
+ns1:Sample_FARM2_4 ns1:hasPesticide ns1:Glyphosate ;
+    ns1:hasValue "0.3"^^xsd:float .
+
+ns1:Sample_FARM3_3 ns1:hasPesticide ns1:Pyrethrin ;
+    ns1:hasValue "0.1"^^xsd:float .
+
