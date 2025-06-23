@@ -6,7 +6,6 @@ import requests
 import os
 
 def wait_for_service(url, service_name, max_attempts=30):
-    """Wait for a service to be ready"""
     print(f"⏳ Waiting for {service_name} to be ready...")
     for attempt in range(max_attempts):
         try:
@@ -62,12 +61,10 @@ def run_command(cmd, desc):
 
 def main():
     print("🚀 Starting Organic Certification Semantic Web Pipeline\n")
-    
-    # Get service URLs from environment variables
+
     fuseki_url = os.getenv('FUSEKI_URL', 'http://fuseki:3030')
     ganache_url = os.getenv('GANACHE_URL', 'http://ganache:8545')
     
-    # Wait for services to be ready
     fuseki_ready = wait_for_service(fuseki_url, "Fuseki")
     ganache_ready = wait_for_ganache(ganache_url)
     

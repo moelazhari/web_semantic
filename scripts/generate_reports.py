@@ -5,25 +5,21 @@ from datetime import datetime
 from SPARQLWrapper import SPARQLWrapper, JSON
 import pandas as pd
 
-# Configuration - use environment variable for Docker compatibility
 FUSEKI_URL = os.getenv('FUSEKI_URL', 'http://localhost:3030')
 FUSEKI_ENDPOINT = f"{FUSEKI_URL}/organic"
 REPORTS_DIR = "reports"
 
 def setup_sparql():
-    """Setup SPARQL endpoint connection"""
     sparql = SPARQLWrapper(f"{FUSEKI_ENDPOINT}/sparql")
     sparql.setReturnFormat(JSON)
     return sparql
 
 def ensure_reports_directory():
-    """Create reports directory if it doesn't exist"""
     if not os.path.exists(REPORTS_DIR):
         os.makedirs(REPORTS_DIR)
         print(f"📁 Created reports directory: {REPORTS_DIR}")
 
 def generate_compliance_report():
-    """Generate comprehensive compliance report"""
     sparql = setup_sparql()
     
     # Query for all farm data
@@ -51,7 +47,6 @@ def generate_compliance_report():
     sparql.setQuery(query)
     results = sparql.query().convert()
     
-    # Process results
     farms_data = []
     for result in results["results"]["bindings"]:
         farm_name = result["farm"]["value"].split("#")[-1]
@@ -76,10 +71,8 @@ def generate_compliance_report():
             "Violation_Reason": violation
         })
     
-    # Create DataFrame and save
     df = pd.DataFrame(farms_data)
     
-    # Handle empty DataFrame
     if df.empty:
         print("⚠️  No farm data found. Creating empty report.")
         compliance_summary = {
@@ -93,7 +86,6 @@ def generate_compliance_report():
             "status": "NO_DATA"
         }
     else:
-        # Generate compliance summary
         compliance_summary = {
             "report_date": datetime.now().isoformat(),
             "total_farms": len(df["Farm"].unique()),
@@ -105,11 +97,9 @@ def generate_compliance_report():
             "status": "DATA_FOUND"
         }
     
-    # Save detailed report
     report_file = os.path.join(REPORTS_DIR, "compliance_report.csv")
     df.to_csv(report_file, index=False)
-    
-    # Save summary
+
     summary_file = os.path.join(REPORTS_DIR, "compliance_summary.json")
     with open(summary_file, 'w') as f:
         json.dump(compliance_summary, f, indent=2)
@@ -148,7 +138,6 @@ def generate_violation_report():
         value = float(result["value"]["value"])
         reason = result.get("violationReason", {}).get("value", "Unknown violation")
         
-        # Determine violation type
         violation_type = "Unknown"
         if pesticide in ["DDT", "Atrazine", "Chlordane"]:
             violation_type = "Prohibited Pesticide"
@@ -220,7 +209,6 @@ def generate_audit_trail():
     """Generate audit trail for blockchain verification"""
     sparql = setup_sparql()
     
-    # Get all farm data for audit trail
     query = """
     PREFIX : <http://example.org/organic#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>

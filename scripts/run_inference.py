@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-Semantic inference engine for organic agriculture certification
-Implements EU 2018/848 regulation compliance checking
-"""
-
 import requests
 import json
 import os
@@ -12,7 +7,6 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 from rdflib import Graph, Namespace, URIRef, RDF, RDFS, OWL
 from rdflib.namespace import XSD
 
-# Configuration - use environment variable for Docker compatibility
 FUSEKI_URL = os.getenv('FUSEKI_URL', 'http://localhost:3030')
 FUSEKI_ENDPOINT = f"{FUSEKI_URL}/organic"
 FUSEKI_USER = os.getenv('FUSEKI_USER', 'admin')
@@ -20,11 +14,9 @@ FUSEKI_PASSWORD = os.getenv('FUSEKI_PASSWORD', 'admin123')
 ns = Namespace("http://example.org/organic#")
 
 def setup_sparql():
-    """Setup SPARQL endpoint connection"""
     sparql = SPARQLWrapper(f"{FUSEKI_ENDPOINT}/sparql")
     sparql.setReturnFormat(JSON)
     
-    # Add authentication
     credentials = f"{FUSEKI_USER}:{FUSEKI_PASSWORD}"
     encoded_credentials = base64.b64encode(credentials.encode()).decode()
     sparql.addCustomHttpHeader('Authorization', f'Basic {encoded_credentials}')
@@ -32,9 +24,7 @@ def setup_sparql():
     return sparql
 
 def execute_sparql_update(query, description):
-    """Execute SPARQL UPDATE query with proper formatting"""
     try:
-        # Use requests directly for better control over the request
         url = f"{FUSEKI_ENDPOINT}/update"
         headers = {
             'Content-Type': 'application/sparql-update',
@@ -56,12 +46,10 @@ def execute_sparql_update(query, description):
         return False
 
 def run_inference_rules():
-    """Run semantic inference rules for organic certification"""
     sparql = setup_sparql()
     
     print("🧠 Running semantic inference rules...")
     
-    # Rule 1: Mark farms as non-organic if they have prohibited pesticides
     inference_query_1 = """
     PREFIX : <http://example.org/organic#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -81,7 +69,6 @@ def run_inference_rules():
     }
     """
     
-    # Rule 2: Mark farms as non-organic if pesticide levels exceed limits
     inference_query_2 = """
     PREFIX : <http://example.org/organic#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -102,7 +89,6 @@ def run_inference_rules():
     }
     """
     
-    # Rule 3: Certify farms as organic if they pass all tests
     inference_query_3 = """
     PREFIX : <http://example.org/organic#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -125,7 +111,6 @@ def run_inference_rules():
     }
     """
     
-    # Execute inference rules
     rules = [
         ("Identifying non-organic farms (prohibited pesticides)", inference_query_1),
         ("Checking pesticide concentration limits", inference_query_2),
@@ -139,10 +124,8 @@ def run_inference_rules():
     print("✅ Semantic inference completed")
 
 def verify_inference_results():
-    """Verify the results of semantic inference"""
     sparql = setup_sparql()
     
-    # Check organic farms
     organic_query = """
     PREFIX : <http://example.org/organic#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -153,7 +136,6 @@ def verify_inference_results():
     }
     """
     
-    # Check non-organic farms
     non_organic_query = """
     PREFIX : <http://example.org/organic#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -166,7 +148,6 @@ def verify_inference_results():
     
     print("\n📊 Inference Results:")
     
-    # Organic farms
     sparql.setQuery(organic_query)
     results = sparql.query().convert()
     organic_farms = results["results"]["bindings"]
@@ -177,7 +158,6 @@ def verify_inference_results():
         status = farm.get("status", {}).get("value", "CERTIFIED")
         print(f"   • {farm_name}: {status}")
     
-    # Non-organic farms
     sparql.setQuery(non_organic_query)
     results = sparql.query().convert()
     non_organic_farms = results["results"]["bindings"]
@@ -195,10 +175,8 @@ def main():
     print("📋 Implementing EU Regulation 2018/848 compliance rules\n")
     
     try:
-        # Run inference rules
         run_inference_rules()
-        
-        # Verify results
+
         organic_count, non_organic_count = verify_inference_results()
         
         print(f"\n📈 Summary:")

@@ -3,7 +3,6 @@ import json
 from rdflib import Graph, Namespace, URIRef, Literal
 from rdflib.namespace import XSD
 
-# Load sensor JSON data
 with open('scripts/sensor_data.json') as f:
     entries = json.load(f)
 
