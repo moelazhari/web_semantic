@@ -1,0 +1,14 @@
+{
+  "farm_id": "FARM3",
+  "timestamp": "2025-06-23T22:25:12.058303",
+  "rdf_hash": "193065c774087a9016b8967956e4429add068237c5cab5c54943c5e3af4b29ae",
+  "regulation": "EU_2018_848",
+  "proof_type": "ORGANIC_CERTIFICATION",
+  "rdf_data": "@prefix organic: <http://example.org/organic#> .\n\norganic:FARM3 a organic:OrganicFarm ;\n    organic:certificationDate <http://example.org/organic#2025-06-23T22:25:12.057914> ;\n    organic:certificationStatus organic:CERTIFIED ;\n    organic:hasSoilSample organic:Sample_FARM3_2 ;\n    organic:regulation organic:EU_2018_848 .\n\norganic:Sample_FARM3_2 organic:hasPesticide organic:Pyrethrin ;\n    organic:hasValue organic:0.1 .\n\n",
+  "signature": {
+    "r": 71500090046383035073119282904737481120197591357434616551527431900194286995620,
+    "s": 34652567736872066969870428182611287555903522156322141396987453109578563368434,
+    "v": 27,
+    "signer_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+  }
+}

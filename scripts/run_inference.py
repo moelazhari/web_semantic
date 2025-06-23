@@ -6,19 +6,54 @@ Implements EU 2018/848 regulation compliance checking
 
 import requests
 import json
+import os
+import base64
 from SPARQLWrapper import SPARQLWrapper, JSON
 from rdflib import Graph, Namespace, URIRef, RDF, RDFS, OWL
 from rdflib.namespace import XSD
 
-# Configuration
-FUSEKI_URL = "http://localhost:3030/organic"
+# Configuration - use environment variable for Docker compatibility
+FUSEKI_URL = os.getenv('FUSEKI_URL', 'http://localhost:3030')
+FUSEKI_ENDPOINT = f"{FUSEKI_URL}/organic"
+FUSEKI_USER = os.getenv('FUSEKI_USER', 'admin')
+FUSEKI_PASSWORD = os.getenv('FUSEKI_PASSWORD', 'admin123')
 ns = Namespace("http://example.org/organic#")
 
 def setup_sparql():
     """Setup SPARQL endpoint connection"""
-    sparql = SPARQLWrapper(f"{FUSEKI_URL}/sparql")
+    sparql = SPARQLWrapper(f"{FUSEKI_ENDPOINT}/sparql")
     sparql.setReturnFormat(JSON)
+    
+    # Add authentication
+    credentials = f"{FUSEKI_USER}:{FUSEKI_PASSWORD}"
+    encoded_credentials = base64.b64encode(credentials.encode()).decode()
+    sparql.addCustomHttpHeader('Authorization', f'Basic {encoded_credentials}')
+    
     return sparql
+
+def execute_sparql_update(query, description):
+    """Execute SPARQL UPDATE query with proper formatting"""
+    try:
+        # Use requests directly for better control over the request
+        url = f"{FUSEKI_ENDPOINT}/update"
+        headers = {
+            'Content-Type': 'application/sparql-update',
+            'Authorization': f'Basic {base64.b64encode(f"{FUSEKI_USER}:{FUSEKI_PASSWORD}".encode()).decode()}'
+        }
+        
+        response = requests.post(url, data=query, headers=headers)
+        
+        if response.status_code == 200:
+            print(f"   ✅ {description} completed")
+            return True
+        else:
+            print(f"   ❌ Error in {description}: HTTP {response.status_code}")
+            print(f"   Response: {response.text}")
+            return False
+            
+    except Exception as e:
+        print(f"   ❌ Error in {description}: {e}")
+        return False
 
 def run_inference_rules():
     """Run semantic inference rules for organic certification"""
@@ -91,9 +126,6 @@ def run_inference_rules():
     """
     
     # Execute inference rules
-    update_sparql = SPARQLWrapper(f"{FUSEKI_URL}/update")
-    update_sparql.setMethod("POST")
-    
     rules = [
         ("Identifying non-organic farms (prohibited pesticides)", inference_query_1),
         ("Checking pesticide concentration limits", inference_query_2),
@@ -102,12 +134,7 @@ def run_inference_rules():
     
     for desc, query in rules:
         print(f"   Executing: {desc}")
-        update_sparql.setQuery(query)
-        try:
-            update_sparql.query()
-            print(f"   ✅ {desc} completed")
-        except Exception as e:
-            print(f"   ❌ Error in {desc}: {e}")
+        execute_sparql_update(query, desc)
     
     print("✅ Semantic inference completed")
 

@@ -1,0 +1,18 @@
+{
+  "farm_id": "FARM2",
+  "tx_hash": "0xe4a4479ee0bad790da8e1f8674306b55294801a4673b6a28b7a3968a07af12ac",
+  "block_number": 2,
+  "gas_used": 23752,
+  "certification_data": {
+    "farm_id": "FARM2",
+    "rdf_hash": "7c1ac2f5c004a99c3b68697a2d1228e31dc3778610724347e0ed54990f0e8dc4",
+    "timestamp": "2025-06-23T22:25:12.049493",
+    "regulation": "EU_2018_848"
+  },
+  "blockchain_proof": {
+    "network": "ganache-local",
+    "chain_id": 1337,
+    "timestamp": 1750717514.3845267,
+    "status": "confirmed"
+  }
+}

@@ -5,13 +5,14 @@ from datetime import datetime
 from SPARQLWrapper import SPARQLWrapper, JSON
 import pandas as pd
 
-# Configuration
-FUSEKI_URL = "http://localhost:3030/organic"
+# Configuration - use environment variable for Docker compatibility
+FUSEKI_URL = os.getenv('FUSEKI_URL', 'http://localhost:3030')
+FUSEKI_ENDPOINT = f"{FUSEKI_URL}/organic"
 REPORTS_DIR = "reports"
 
 def setup_sparql():
     """Setup SPARQL endpoint connection"""
-    sparql = SPARQLWrapper(f"{FUSEKI_URL}/sparql")
+    sparql = SPARQLWrapper(f"{FUSEKI_ENDPOINT}/sparql")
     sparql.setReturnFormat(JSON)
     return sparql
 
@@ -78,16 +79,31 @@ def generate_compliance_report():
     # Create DataFrame and save
     df = pd.DataFrame(farms_data)
     
-    # Generate compliance summary
-    compliance_summary = {
-        "report_date": datetime.now().isoformat(),
-        "total_farms": len(df["Farm"].unique()),
-        "organic_farms": len(df[df["Farm_Type"] == "OrganicFarm"]["Farm"].unique()),
-        "non_organic_farms": len(df[df["Farm_Type"] == "NonOrganicFarm"]["Farm"].unique()),
-        "total_samples": len(df),
-        "pesticides_detected": df["Pesticide"].unique().tolist(),
-        "regulation": "EU 2018/848 - Organic Agriculture"
-    }
+    # Handle empty DataFrame
+    if df.empty:
+        print("⚠️  No farm data found. Creating empty report.")
+        compliance_summary = {
+            "report_date": datetime.now().isoformat(),
+            "total_farms": 0,
+            "organic_farms": 0,
+            "non_organic_farms": 0,
+            "total_samples": 0,
+            "pesticides_detected": [],
+            "regulation": "EU 2018/848 - Organic Agriculture",
+            "status": "NO_DATA"
+        }
+    else:
+        # Generate compliance summary
+        compliance_summary = {
+            "report_date": datetime.now().isoformat(),
+            "total_farms": len(df["Farm"].unique()),
+            "organic_farms": len(df[df["Farm_Type"] == "OrganicFarm"]["Farm"].unique()),
+            "non_organic_farms": len(df[df["Farm_Type"] == "NonOrganicFarm"]["Farm"].unique()),
+            "total_samples": len(df),
+            "pesticides_detected": df["Pesticide"].unique().tolist(),
+            "regulation": "EU 2018/848 - Organic Agriculture",
+            "status": "DATA_FOUND"
+        }
     
     # Save detailed report
     report_file = os.path.join(REPORTS_DIR, "compliance_report.csv")

@@ -1,0 +1,41 @@
+{
+  "audit_timestamp": "2025-06-23T22:25:10.807251",
+  "regulation": "EU 2018/848",
+  "farms": {
+    "FARM1": {
+      "samples": [
+        {
+          "sample_id": "Sample_FARM1_1",
+          "pesticide": "Glyphosate",
+          "concentration": 0.2
+        }
+      ],
+      "certification_status": "ORGANIC"
+    },
+    "FARM2": {
+      "samples": [
+        {
+          "sample_id": "Sample_FARM2_2",
+          "pesticide": "DDT",
+          "concentration": 0.05
+        },
+        {
+          "sample_id": "Sample_FARM2_4",
+          "pesticide": "Glyphosate",
+          "concentration": 0.3
+        }
+      ],
+      "certification_status": "NON_ORGANIC"
+    },
+    "FARM3": {
+      "samples": [
+        {
+          "sample_id": "Sample_FARM3_3",
+          "pesticide": "Pyrethrin",
+          "concentration": 0.1
+        }
+      ],
+      "certification_status": "ORGANIC"
+    }
+  }
+}

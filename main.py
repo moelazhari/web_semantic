@@ -24,6 +24,28 @@ def wait_for_service(url, service_name, max_attempts=30):
     print(f"❌ {service_name} failed to start after {max_attempts} attempts")
     return False
 
+def wait_for_ganache(url, max_attempts=30):
+    print(f"⏳ Waiting for Ganache to be ready...")
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "web3_clientVersion",
+        "params": [],
+        "id": 1
+    }
+    for attempt in range(max_attempts):
+        try:
+            response = requests.post(url, json=payload, timeout=5)
+            if response.status_code == 200 and "result" in response.json():
+                print("✅ Ganache is ready!")
+                return True
+        except requests.RequestException:
+            pass
+        if attempt < max_attempts - 1:
+            print(f"   Attempt {attempt + 1}/{max_attempts} - retrying in 2 seconds...")
+            time.sleep(2)
+    print(f"❌ Ganache failed to start after {max_attempts} attempts")
+    return False
+
 def run_command(cmd, desc):
     print(f"\n▶️  {desc}…")
     try:
@@ -41,9 +63,13 @@ def run_command(cmd, desc):
 def main():
     print("🚀 Starting Organic Certification Semantic Web Pipeline\n")
     
+    # Get service URLs from environment variables
+    fuseki_url = os.getenv('FUSEKI_URL', 'http://fuseki:3030')
+    ganache_url = os.getenv('GANACHE_URL', 'http://ganache:8545')
+    
     # Wait for services to be ready
-    fuseki_ready = wait_for_service("http://localhost:3030", "Fuseki")
-    ganache_ready = wait_for_service("http://localhost:8545", "Ganache")
+    fuseki_ready = wait_for_service(fuseki_url, "Fuseki")
+    ganache_ready = wait_for_ganache(ganache_url)
     
     if not (fuseki_ready and ganache_ready):
         print("❌ Required services are not ready. Exiting.")

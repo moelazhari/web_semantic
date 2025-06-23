@@ -1,0 +1,7 @@
+Farm,Sample,Pesticide,Concentration,Farm_Type,Certification_Status,Violation_Reason
+FARM1,Sample_FARM1_1,Glyphosate,0.2,OrganicFarm,CERTIFIED,N/A
+FARM2,Sample_FARM2_2,DDT,0.05,NonOrganicFarm,N/A,http://example.org/organic#DDT
+FARM2,Sample_FARM2_2,DDT,0.05,NonOrganicFarm,N/A,Pesticide level exceeds organic limits
+FARM2,Sample_FARM2_4,Glyphosate,0.3,NonOrganicFarm,N/A,http://example.org/organic#DDT
+FARM2,Sample_FARM2_4,Glyphosate,0.3,NonOrganicFarm,N/A,Pesticide level exceeds organic limits
+FARM3,Sample_FARM3_3,Pyrethrin,0.1,OrganicFarm,CERTIFIED,N/A

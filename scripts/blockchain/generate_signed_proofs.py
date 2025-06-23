@@ -5,14 +5,16 @@ import json
 import hashlib
 from datetime import datetime
 from SPARQLWrapper import SPARQLWrapper, JSON, RDF
-from rdflib import Graph, Namespace
+from rdflib import Graph, Namespace, URIRef, RDF as RDF_NS
 from web3 import Web3
 from eth_account import Account
 from dotenv import load_dotenv
 
 load_dotenv()
 
-FUSEKI_URL = "http://localhost:3030/organic"
+# Configuration - use environment variable for Docker compatibility
+FUSEKI_URL = os.getenv('FUSEKI_URL', 'http://localhost:3030')
+FUSEKI_ENDPOINT = f"{FUSEKI_URL}/organic"
 PROOFS_DIR = "proofs"
 ns = Namespace("http://example.org/organic#")
 
@@ -24,7 +26,7 @@ def ensure_proofs_directory():
 
 def setup_sparql():
     """Setup SPARQL endpoint connection"""
-    sparql = SPARQLWrapper(f"{FUSEKI_URL}/sparql")
+    sparql = SPARQLWrapper(f"{FUSEKI_ENDPOINT}/sparql")
     sparql.setReturnFormat(JSON)
     return sparql
 
@@ -91,10 +93,10 @@ def create_rdf_proof_for_farm(farm_name, farm_data):
     farm_uri = ns[farm_name]
     
     if farm_data["farm_type"] == "OrganicFarm":
-        g.add((farm_uri, ns.rdf.type, ns.OrganicFarm))
+        g.add((farm_uri, RDF_NS.type, ns.OrganicFarm))
         g.add((farm_uri, ns.certificationStatus, ns.CERTIFIED))
     elif farm_data["farm_type"] == "NonOrganicFarm":
-        g.add((farm_uri, ns.rdf.type, ns.NonOrganicFarm))
+        g.add((farm_uri, RDF_NS.type, ns.NonOrganicFarm))
         g.add((farm_uri, ns.certificationStatus, ns.REJECTED))
     
     for sample in farm_data["samples"]:

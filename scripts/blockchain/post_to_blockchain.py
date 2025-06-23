@@ -21,7 +21,8 @@ BLOCKCHAIN_DIR = "blockchain_receipts"
 
 def setup_web3():
     """Setup Web3 connection"""
-    rpc_url = os.getenv("RPC_URL", "http://localhost:8545")
+    # Use GANACHE_URL environment variable (set in docker-compose.yml)
+    rpc_url = os.getenv("GANACHE_URL", "http://localhost:8545")
     private_key = os.getenv("PRIVATE_KEY")
     
     if not private_key:
