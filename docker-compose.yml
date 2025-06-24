@@ -1,3 +1,6 @@
+# Configuration Docker pour le pipeline de certification bio
+# Système web sémantique avec blockchain
+
 services:
   organic_app:
     build:
@@ -20,6 +23,7 @@ services:
       - FUSEKI_PASSWORD=admin123
     command: ["python3", "main.py"]
 
+  # Serveur Jena Fuseki pour le raisonnement sémantique
   fuseki:
     image: stain/jena-fuseki:5.1.0
     container_name: fuseki
@@ -37,6 +41,7 @@ services:
       - JVM_ARGS=-Xmx2g
     command: ["sh", "-c", "/jena/run_jena.sh"]
 
+  # Blockchain locale pour les preuves immuables
   ganache:
     image: trufflesuite/ganache-cli:latest
     container_name: ganache

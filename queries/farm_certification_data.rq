@@ -1,8 +1,7 @@
 PREFIX : <http://example.org/organic#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT ?farm ?farmType ?sample ?pesticide ?value ?certStatus ?violationReason WHERE {
+SELECT ?farm ?farmType ?sample ?pesticide ?value ?certStatus WHERE {
     ?farm :hasSoilSample ?sample .
     ?sample :hasPesticide ?pesticide .
     ?sample :hasValue ?value .
@@ -13,6 +12,5 @@ SELECT ?farm ?farmType ?sample ?pesticide ?value ?certStatus ?violationReason WH
     }
     
     OPTIONAL { ?farm :certificationStatus ?certStatus }
-    OPTIONAL { ?farm :hasViolationReason ?violationReason }
 }
-ORDER BY ?farm ?sample
+ORDER BY ?farm ?sample 

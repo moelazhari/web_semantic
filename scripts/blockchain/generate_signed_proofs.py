@@ -3,16 +3,19 @@
 import os
 import json
 import hashlib
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'queries'))
+
 from datetime import datetime
 from SPARQLWrapper import SPARQLWrapper, JSON, RDF
 from rdflib import Graph, Namespace, URIRef, RDF as RDF_NS
 from web3 import Web3
 from eth_account import Account
 from dotenv import load_dotenv
+from query_loader import load_query
 
 load_dotenv()
 
-# Configuration - use environment variable for Docker compatibility
 FUSEKI_URL = os.getenv('FUSEKI_URL', 'http://localhost:3030')
 FUSEKI_ENDPOINT = f"{FUSEKI_URL}/organic"
 PROOFS_DIR = "proofs"
@@ -22,7 +25,7 @@ def ensure_proofs_directory():
     """Create proofs directory if it doesn't exist"""
     if not os.path.exists(PROOFS_DIR):
         os.makedirs(PROOFS_DIR)
-        print(f"📁 Created proofs directory: {PROOFS_DIR}")
+        print(f"Dossier créé: {PROOFS_DIR}")
 
 def setup_sparql():
     """Setup SPARQL endpoint connection"""
@@ -34,24 +37,8 @@ def get_farm_certification_data():
     """Retrieve farm certification data from Fuseki"""
     sparql = setup_sparql()
     
-    query = """
-    PREFIX : <http://example.org/organic#>
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    
-    SELECT ?farm ?farmType ?sample ?pesticide ?value ?certStatus WHERE {
-        ?farm :hasSoilSample ?sample .
-        ?sample :hasPesticide ?pesticide .
-        ?sample :hasValue ?value .
-        
-        OPTIONAL {
-            ?farm rdf:type ?farmType .
-            FILTER(?farmType IN (:OrganicFarm, :NonOrganicFarm))
-        }
-        
-        OPTIONAL { ?farm :certificationStatus ?certStatus }
-    }
-    ORDER BY ?farm ?sample
-    """
+    # Load query from file
+    query = load_query("farm_certification_data")
     
     sparql.setQuery(query)
     results = sparql.query().convert()
@@ -65,8 +52,8 @@ def get_farm_certification_data():
             farms_data[farm_name] = {
                 "farm_uri": farm_uri,
                 "samples": [],
-                "farm_type": "Unknown",
-                "certification_status": "PENDING"
+                "farm_type": "Inconnu",
+                "certification_status": "EN_ATTENTE"
             }
         
         sample_data = {
@@ -108,7 +95,6 @@ def create_rdf_proof_for_farm(farm_name, farm_data):
     g.add((farm_uri, ns.certificationDate, ns[datetime.now().isoformat()]))
     g.add((farm_uri, ns.regulation, ns["EU_2018_848"]))
     
-
     rdf_data = g.serialize(format='turtle')
     return rdf_data
 
@@ -142,10 +128,10 @@ def generate_cryptographic_proof(farm_name, rdf_data):
                 "signer_address": account.address
             }
             
-            print(f"   🔐 Cryptographic proof signed for {farm_name}")
+            print(f"   Preuve cryptographique signée pour {farm_name}")
             
         except Exception as e:
-            print(f"   ⚠️  Warning: Could not sign proof for {farm_name}: {e}")
+            print(f"   Attention: Impossible de signer la preuve pour {farm_name}: {e}")
     
     return proof
 
@@ -156,7 +142,7 @@ def save_proofs(proofs):
         proof_file = os.path.join(PROOFS_DIR, f"{farm_name}_proof.json")
         with open(proof_file, 'w') as f:
             json.dump(proof, f, indent=2)
-        print(f"   📄 Proof saved: {proof_file}")
+        print(f"   Preuve sauvegardée: {proof_file}")
     
     signatures = {}
     for farm_name, proof in proofs.items():
@@ -170,7 +156,7 @@ def save_proofs(proofs):
     with open(signatures_file, 'w') as f:
         json.dump(signatures, f, indent=2)
     
-    print(f"   📦 Combined signatures saved: {signatures_file}")
+    print(f"   Signatures combinées sauvegardées: {signatures_file}")
     return signatures_file
 
 def verify_proof_integrity(proof):
@@ -182,54 +168,53 @@ def verify_proof_integrity(proof):
         if computed_hash == proof["rdf_hash"]:
             return True
         else:
-            print(f"   ❌ Hash mismatch for {proof['farm_id']}")
+            print(f"   Erreur de hash pour {proof['farm_id']}")
             return False
             
     except Exception as e:
-        print(f"   ❌ Error verifying proof: {e}")
+        print(f"   Erreur de vérification: {e}")
         return False
 
 def main():
-    print("🔐 Generating cryptographic proofs for organic certification")
-    print("🏛️  Creating immutable blockchain-ready proofs\n")
+    print("Génération des preuves cryptographiques pour certification bio")
+    print("Création de preuves immuables pour blockchain\n")
     
     ensure_proofs_directory()
     
     try:
-        print("1️⃣  Retrieving farm certification data...")
+        print("1. Récupération des données de certification...")
         farms_data = get_farm_certification_data()
-        print(f"   Found {len(farms_data)} farms to process")
+        print(f"   {len(farms_data)} fermes trouvées")
         
-        print("\n2️⃣  Generating RDF proofs...")
+        print("\n2. Génération des preuves RDF...")
         proofs = {}
         
         for farm_name, farm_data in farms_data.items():
-            print(f"   Processing {farm_name}...")
+            print(f"   Traitement de {farm_name}...")
             
             rdf_data = create_rdf_proof_for_farm(farm_name, farm_data)
-            
             proof = generate_cryptographic_proof(farm_name, rdf_data)
             
             if verify_proof_integrity(proof):
                 proofs[farm_name] = proof
-                print(f"   ✅ Proof generated and verified for {farm_name}")
+                print(f"   Preuve générée et vérifiée pour {farm_name}")
             else:
-                print(f"   ❌ Proof verification failed for {farm_name}")
-
-        print("\n3️⃣  Saving proofs...")
+                print(f"   Erreur de vérification pour {farm_name}")
+        
+        print("\n3. Sauvegarde des preuves...")
         signatures_file = save_proofs(proofs)
         
-        print(f"\n📊 Proof Generation Summary:")
-        print(f"   Total Proofs Generated: {len(proofs)}")
-        print(f"   Organic Farms: {len([p for p in proofs.values() if 'OrganicFarm' in p.get('rdf_data', '')])}")
-        print(f"   Non-Organic Farms: {len([p for p in proofs.values() if 'NonOrganicFarm' in p.get('rdf_data', '')])}")
-        print(f"   Signatures File: {signatures_file}")
+        print(f"\nRésumé de génération:")
+        print(f"   Preuves générées: {len(proofs)}")
+        print(f"   Fermes bio: {len([p for p in proofs.values() if 'OrganicFarm' in p['rdf_data']])}")
+        print(f"   Fermes non-bio: {len([p for p in proofs.values() if 'NonOrganicFarm' in p['rdf_data']])}")
+        print(f"   Fichier signatures: {signatures_file}")
         
-        print("\n✅ Cryptographic proof generation completed successfully!")
-        print("🔗 Ready for blockchain submission")
+        print("\nGénération des preuves cryptographiques terminée!")
+        print("Prêt pour soumission blockchain")
         
     except Exception as e:
-        print(f"❌ Error generating proofs: {e}")
+        print(f"Erreur lors de la génération des preuves: {e}")
         raise
 
 if __name__ == "__main__":

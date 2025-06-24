@@ -1,6 +1,11 @@
 PREFIX : <http://example.org/organic#>
-SELECT ?farm ?pest WHERE {
-  ?farm a :NonOrganicFarm .
-  ?farm :hasSoilSample ?s .
-  ?s :hasPesticide ?pest .
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?farm ?sample ?pesticide ?value ?violationReason WHERE {
+    ?farm rdf:type :NonOrganicFarm .
+    ?farm :hasSoilSample ?sample .
+    ?sample :hasPesticide ?pesticide .
+    ?sample :hasValue ?value .
+    OPTIONAL { ?farm :hasViolationReason ?violationReason }
 }
+ORDER BY ?farm

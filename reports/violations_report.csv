@@ -1,5 +1,0 @@
-Farm,Sample,Pesticide,Concentration,Violation_Type,Violation_Reason,Severity
-FARM2,Sample_FARM2_2,DDT,0.05,Prohibited Pesticide,http://example.org/organic#DDT,HIGH
-FARM2,Sample_FARM2_2,DDT,0.05,Prohibited Pesticide,Pesticide level exceeds organic limits,HIGH
-FARM2,Sample_FARM2_4,Glyphosate,0.3,Unknown,http://example.org/organic#DDT,MEDIUM
-FARM2,Sample_FARM2_4,Glyphosate,0.3,Concentration Limit Exceeded,Pesticide level exceeds organic limits,MEDIUM

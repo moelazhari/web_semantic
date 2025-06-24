@@ -1,12 +1,28 @@
-# SWRL rules for compliance
+# SWRL rules for organic certification compliance
+# Based on EU Regulation 2018/848
 
-# 1. Non-organic if pesticide not allowed
+# Rule 1: Farm is non-organic if it contains prohibited pesticides
 Farm(?f) ^ hasSoilSample(?f, ?s) ^ hasPesticide(?s, ?p) ^ 
   swrlb:notEqual(?p, #Glyphosate) ^ swrlb:notEqual(?p, #Pyrethrin) ->
-    NonOrganicFarm(?f)
+    NonOrganicFarm(?f) ^ violatesRegulation(?f, #EU_2018_848)
 
-# 2. Organic if no rule violation
-Farm(?f) ^ swrlb:notExists(?f, NonOrganicFarm) -> OrganicFarm(?f)
+# Rule 2: Farm is non-organic if pesticide levels exceed limits
+Farm(?f) ^ hasSoilSample(?f, ?s) ^ hasPesticide(?s, #Glyphosate) ^ 
+  hasValue(?s, ?v) ^ swrlb:greaterThan(?v, 0.25) ->
+    NonOrganicFarm(?f) ^ violatesRegulation(?f, #EU_2018_848)
 
-# 3. Assign certification
-OrganicFarm(?f) -> hasCertification(?f, #OrganicCert)
+Farm(?f) ^ hasSoilSample(?f, ?s) ^ hasPesticide(?s, #Pyrethrin) ^ 
+  hasValue(?s, ?v) ^ swrlb:greaterThan(?v, 0.15) ->
+    NonOrganicFarm(?f) ^ violatesRegulation(?f, #EU_2018_848)
+
+# Rule 3: Farm is organic if it doesn't violate any rules
+Farm(?f) ^ swrlb:notExists(?f, NonOrganicFarm) ->
+    OrganicFarm(?f) ^ hasCertification(?f, #OrganicCertification)
+
+# Rule 4: Assign certification status to organic farms
+OrganicFarm(?f) -> certificationStatus(?f, "CERTIFIED")
+
+# Rule 5: Assign violation reasons to non-organic farms
+NonOrganicFarm(?f) ^ hasSoilSample(?f, ?s) ^ hasPesticide(?s, ?p) ^
+  swrlb:notEqual(?p, #Glyphosate) ^ swrlb:notEqual(?p, #Pyrethrin) ->
+    hasViolationReason(?f, ?p)

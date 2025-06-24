@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-Post organic certification proofs to blockchain
-Stores immutable proofs for verification and audit
-"""
 
 import os
 import json
@@ -12,90 +8,71 @@ from web3.middleware import geth_poa_middleware
 from eth_account import Account
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
-
-# Configuration
 PROOFS_DIR = "proofs"
 BLOCKCHAIN_DIR = "blockchain_receipts"
 
 def setup_web3():
-    """Setup Web3 connection"""
-    # Use GANACHE_URL environment variable (set in docker-compose.yml)
     rpc_url = os.getenv("GANACHE_URL", "http://localhost:8545")
     private_key = os.getenv("PRIVATE_KEY")
     
     if not private_key:
-        raise ValueError("PRIVATE_KEY not found in environment variables")
+        raise ValueError("PRIVATE_KEY non trouvée dans les variables d'environnement")
     
-    # Connect to blockchain
     w3 = Web3(Web3.HTTPProvider(rpc_url))
     
-    # Add PoA middleware for development chains
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
     
     if not w3.is_connected():
-        raise ConnectionError(f"Could not connect to blockchain at {rpc_url}")
+        raise ConnectionError(f"Impossible de se connecter à la blockchain: {rpc_url}")
     
-    # Setup account
     account = Account.from_key(private_key)
     
-    print(f"🔗 Connected to blockchain: {rpc_url}")
-    print(f"👤 Using account: {account.address}")
-    print(f"💰 Balance: {w3.from_wei(w3.eth.get_balance(account.address), 'ether')} ETH")
+    print(f"Connecté à la blockchain: {rpc_url}")
+    print(f"Compte utilisé: {account.address}")
+    print(f"Solde: {w3.from_wei(w3.eth.get_balance(account.address), 'ether')} ETH")
     
     return w3, account
 
 def ensure_blockchain_directory():
-    """Create blockchain receipts directory"""
     if not os.path.exists(BLOCKCHAIN_DIR):
         os.makedirs(BLOCKCHAIN_DIR)
-        print(f"📁 Created blockchain receipts directory: {BLOCKCHAIN_DIR}")
+        print(f"Dossier créé: {BLOCKCHAIN_DIR}")
 
 def load_signatures():
-    """Load signatures from proofs directory"""
     signatures_file = os.path.join(PROOFS_DIR, "signatures.json")
     
     if not os.path.exists(signatures_file):
-        raise FileNotFoundError(f"Signatures file not found: {signatures_file}")
+        raise FileNotFoundError(f"Fichier signatures non trouvé: {signatures_file}")
     
     with open(signatures_file, 'r') as f:
         signatures = json.load(f)
     
-    print(f"📦 Loaded {len(signatures)} signatures from {signatures_file}")
+    print(f"Chargement de {len(signatures)} signatures depuis {signatures_file}")
     return signatures
 
 def create_certification_contract_data(farm_id, signature_data):
-    """Create contract data for certification"""
-    
-    # Simple data structure for certification
     cert_data = {
         "farm_id": farm_id,
         "rdf_hash": signature_data["rdf_hash"],
         "timestamp": signature_data["timestamp"],
         "regulation": "EU_2018_848"
     }
-    
-    # Convert to bytes for blockchain storage
     data_json = json.dumps(cert_data, sort_keys=True)
     data_bytes = data_json.encode('utf-8')
     
     return data_bytes, cert_data
 
 def post_certification_to_blockchain(w3, account, farm_id, signature_data):
-    """Post a single certification to blockchain"""
     
     try:
-        # Create transaction data
         data_bytes, cert_data = create_certification_contract_data(farm_id, signature_data)
-        
-        # Get transaction parameters
+    
         nonce = w3.eth.get_transaction_count(account.address)
         gas_price = w3.eth.gas_price
         
-        # Build transaction
         transaction = {
-            'to': account.address,  # Self-transaction with data
+            'to': account.address,
             'value': 0,
             'gas': 100000,
             'gasPrice': gas_price,
@@ -104,23 +81,20 @@ def post_certification_to_blockchain(w3, account, farm_id, signature_data):
             'chainId': w3.eth.chain_id
         }
         
-        # Sign and send transaction
         signed_txn = account.sign_transaction(transaction)
         tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         
-        print(f"   📤 Transaction sent for {farm_id}")
-        print(f"   🆔 TX Hash: {tx_hash.hex()}")
+        print(f"   Transaction envoyée pour {farm_id}")
+        print(f"   Hash TX: {tx_hash.hex()}")
         
-        # Wait for confirmation
-        print(f"   ⏳ Waiting for confirmation...")
+        print(f"   Attente de confirmation...")
         receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=120)
         
         if receipt.status == 1:
-            print(f"   ✅ Transaction confirmed for {farm_id}")
-            print(f"   📦 Block: {receipt.blockNumber}")
-            print(f"   ⛽ Gas used: {receipt.gasUsed}")
+            print(f"   Transaction confirmée pour {farm_id}")
+            print(f"   Bloc: {receipt.blockNumber}")
+            print(f"   Gas utilisé: {receipt.gasUsed}")
             
-            # Save receipt
             receipt_data = {
                 "farm_id": farm_id,
                 "tx_hash": tx_hash.hex(),
@@ -138,33 +112,28 @@ def post_certification_to_blockchain(w3, account, farm_id, signature_data):
             return receipt_data
             
         else:
-            print(f"   ❌ Transaction failed for {farm_id}")
+            print(f"   Transaction échouée pour {farm_id}")
             return None
             
     except Exception as e:
-        print(f"   ❌ Error posting {farm_id} to blockchain: {e}")
+        print(f"   Erreur lors de la publication de {farm_id}: {e}")
         return None
 
 def save_blockchain_receipts(receipts):
-    """Save blockchain receipts to files"""
-    
-    # Save individual receipts
     for receipt in receipts:
         if receipt:
             receipt_file = os.path.join(BLOCKCHAIN_DIR, f"{receipt['farm_id']}_receipt.json")
             with open(receipt_file, 'w') as f:
                 json.dump(receipt, f, indent=2)
-    
-    # Save combined receipts
+
     combined_file = os.path.join(BLOCKCHAIN_DIR, "all_receipts.json")
     with open(combined_file, 'w') as f:
         json.dump([r for r in receipts if r], f, indent=2)
     
-    print(f"💾 Blockchain receipts saved to {BLOCKCHAIN_DIR}/")
+    print(f"Reçus blockchain sauvegardés dans {BLOCKCHAIN_DIR}/")
 
 def verify_blockchain_storage(w3, receipts):
-    """Verify that data is properly stored on blockchain"""
-    print("\n🔍 Verifying blockchain storage...")
+    print("\nVérification du stockage blockchain...")
     
     verified_count = 0
     for receipt in receipts:
@@ -172,71 +141,63 @@ def verify_blockchain_storage(w3, receipts):
             continue
             
         try:
-            # Get transaction from blockchain
             tx = w3.eth.get_transaction(receipt['tx_hash'])
             
-            # Verify data integrity
-            stored_data = bytes.fromhex(tx['input'][2:]).decode('utf-8')  # Remove '0x' prefix
+            stored_data = bytes.fromhex(tx['input'][2:]).decode('utf-8')
             stored_json = json.loads(stored_data)
             
             if stored_json['farm_id'] == receipt['farm_id']:
-                print(f"   ✅ {receipt['farm_id']}: Data verified on blockchain")
+                print(f"   {receipt['farm_id']}: Données vérifiées sur blockchain")
                 verified_count += 1
             else:
-                print(f"   ❌ {receipt['farm_id']}: Data mismatch")
+                print(f"   {receipt['farm_id']}: Incohérence de données")
                 
         except Exception as e:
-            print(f"   ❌ {receipt['farm_id']}: Verification error: {e}")
+            print(f"   {receipt['farm_id']}: Erreur de vérification: {e}")
     
-    print(f"📊 Verification complete: {verified_count}/{len([r for r in receipts if r])} farms verified")
+    print(f"Vérification terminée: {verified_count}/{len([r for r in receipts if r])} fermes vérifiées")
 
 def main():
-    print("🚀 Posting organic certification proofs to blockchain")
-    print("🔗 Creating immutable audit trail\n")
+    print("Publication des preuves de certification bio sur blockchain")
+    print("Création d'une piste d'audit immuable\n")
     
     try:
-        # Setup
         ensure_blockchain_directory()
         w3, account = setup_web3()
+        
+        print("\n1. Chargement des signatures...")
         signatures = load_signatures()
         
-        # Post each certification to blockchain
-        print(f"\n📤 Posting {len(signatures)} certifications to blockchain...")
+        print("\n2. Publication sur blockchain...")
         receipts = []
         
         for farm_id, signature_data in signatures.items():
-            print(f"\n🏭 Processing {farm_id}...")
+            print(f"   Publication de {farm_id}...")
             receipt = post_certification_to_blockchain(w3, account, farm_id, signature_data)
             receipts.append(receipt)
             
-            # Small delay to avoid nonce issues
-            time.sleep(1)
+            if receipt:
+                print(f"   Succès pour {farm_id}")
+            else:
+                print(f"   Échec pour {farm_id}")
         
-        # Save receipts
-        print(f"\n💾 Saving blockchain receipts...")
+        print("\n3. Sauvegarde des reçus...")
         save_blockchain_receipts(receipts)
         
-        # Verify storage
+        print("\n4. Vérification du stockage...")
         verify_blockchain_storage(w3, receipts)
         
-        # Final summary
-        successful_posts = len([r for r in receipts if r])
-        print(f"\n📊 Blockchain Posting Summary:")
-        print(f"   Total Farms: {len(signatures)}")
-        print(f"   Successfully Posted: {successful_posts}")
-        print(f"   Failed Posts: {len(signatures) - successful_posts}")
-        print(f"   Network: {w3.eth.chain_id}")
-        print(f"   Receipts Saved: {BLOCKCHAIN_DIR}/")
+        successful_receipts = [r for r in receipts if r]
+        print(f"\nRésumé:")
+        print(f"   Publications réussies: {len(successful_receipts)}")
+        print(f"   Publications échouées: {len(receipts) - len(successful_receipts)}")
+        print(f"   Total traité: {len(receipts)}")
         
-        if successful_posts == len(signatures):
-            print("\n🎉 All certifications successfully posted to blockchain!")
-        else:
-            print(f"\n⚠️  {len(signatures) - successful_posts} certifications failed to post")
-        
-        print("🔒 Immutable audit trail created on blockchain")
+        print("\nPublication blockchain terminée avec succès!")
+        print("Preuves stockées de manière immuable pour vérification")
         
     except Exception as e:
-        print(f"❌ Error posting to blockchain: {e}")
+        print(f"Erreur lors de la publication blockchain: {e}")
         raise
 
 if __name__ == "__main__":

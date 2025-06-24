@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 import os
 import json
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'queries'))
+
 from datetime import datetime
 from SPARQLWrapper import SPARQLWrapper, JSON
 import pandas as pd
+from query_loader import load_query
 
 FUSEKI_URL = os.getenv('FUSEKI_URL', 'http://localhost:3030')
 FUSEKI_ENDPOINT = f"{FUSEKI_URL}/organic"
@@ -17,32 +21,13 @@ def setup_sparql():
 def ensure_reports_directory():
     if not os.path.exists(REPORTS_DIR):
         os.makedirs(REPORTS_DIR)
-        print(f"📁 Created reports directory: {REPORTS_DIR}")
+        print(f"Dossier créé: {REPORTS_DIR}")
 
 def generate_compliance_report():
     sparql = setup_sparql()
     
-    # Query for all farm data
-    query = """
-    PREFIX : <http://example.org/organic#>
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-    
-    SELECT ?farm ?farmType ?sample ?pesticide ?value ?certStatus ?violationReason WHERE {
-        ?farm :hasSoilSample ?sample .
-        ?sample :hasPesticide ?pesticide .
-        ?sample :hasValue ?value .
-        
-        OPTIONAL {
-            ?farm rdf:type ?farmType .
-            FILTER(?farmType IN (:OrganicFarm, :NonOrganicFarm))
-        }
-        
-        OPTIONAL { ?farm :certificationStatus ?certStatus }
-        OPTIONAL { ?farm :hasViolationReason ?violationReason }
-    }
-    ORDER BY ?farm ?sample
-    """
+    # Load query from file
+    query = load_query("compliance_report")
     
     sparql.setQuery(query)
     results = sparql.query().convert()
@@ -54,7 +39,7 @@ def generate_compliance_report():
         pesticide = result["pesticide"]["value"].split("#")[-1]
         value = float(result["value"]["value"])
         
-        farm_type = "Unknown"
+        farm_type = "Inconnu"
         if "farmType" in result:
             farm_type = result["farmType"]["value"].split("#")[-1]
         
@@ -62,70 +47,58 @@ def generate_compliance_report():
         violation = result.get("violationReason", {}).get("value", "N/A")
         
         farms_data.append({
-            "Farm": farm_name,
-            "Sample": sample_name,
+            "Ferme": farm_name,
+            "Echantillon": sample_name,
             "Pesticide": pesticide,
             "Concentration": value,
-            "Farm_Type": farm_type,
-            "Certification_Status": cert_status,
-            "Violation_Reason": violation
+            "Type_Ferme": farm_type,
+            "Statut_Certification": cert_status,
+            "Raison_Violation": violation
         })
     
     df = pd.DataFrame(farms_data)
     
     if df.empty:
-        print("⚠️  No farm data found. Creating empty report.")
+        print("Aucune donnée de ferme trouvée. Création d'un rapport vide.")
         compliance_summary = {
-            "report_date": datetime.now().isoformat(),
-            "total_farms": 0,
-            "organic_farms": 0,
-            "non_organic_farms": 0,
-            "total_samples": 0,
-            "pesticides_detected": [],
-            "regulation": "EU 2018/848 - Organic Agriculture",
-            "status": "NO_DATA"
+            "date_rapport": datetime.now().isoformat(),
+            "total_fermes": 0,
+            "fermes_bio": 0,
+            "fermes_non_bio": 0,
+            "total_echantillons": 0,
+            "pesticides_detectes": [],
+            "reglementation": "EU 2018/848 - Agriculture Biologique",
+            "statut": "AUCUNE_DONNEE"
         }
     else:
         compliance_summary = {
-            "report_date": datetime.now().isoformat(),
-            "total_farms": len(df["Farm"].unique()),
-            "organic_farms": len(df[df["Farm_Type"] == "OrganicFarm"]["Farm"].unique()),
-            "non_organic_farms": len(df[df["Farm_Type"] == "NonOrganicFarm"]["Farm"].unique()),
-            "total_samples": len(df),
-            "pesticides_detected": df["Pesticide"].unique().tolist(),
-            "regulation": "EU 2018/848 - Organic Agriculture",
-            "status": "DATA_FOUND"
+            "date_rapport": datetime.now().isoformat(),
+            "total_fermes": len(df["Ferme"].unique()),
+            "fermes_bio": len(df[df["Type_Ferme"] == "OrganicFarm"]["Ferme"].unique()),
+            "fermes_non_bio": len(df[df["Type_Ferme"] == "NonOrganicFarm"]["Ferme"].unique()),
+            "total_echantillons": len(df),
+            "pesticides_detectes": df["Pesticide"].unique().tolist(),
+            "reglementation": "EU 2018/848 - Agriculture Biologique",
+            "statut": "DONNEES_TROUVEES"
         }
     
-    report_file = os.path.join(REPORTS_DIR, "compliance_report.csv")
+    report_file = os.path.join(REPORTS_DIR, "rapport_conformite.csv")
     df.to_csv(report_file, index=False)
 
-    summary_file = os.path.join(REPORTS_DIR, "compliance_summary.json")
+    summary_file = os.path.join(REPORTS_DIR, "resume_conformite.json")
     with open(summary_file, 'w') as f:
         json.dump(compliance_summary, f, indent=2)
     
-    print(f"📊 Compliance report saved: {report_file}")
-    print(f"📋 Summary saved: {summary_file}")
+    print(f"Rapport de conformité sauvegardé: {report_file}")
+    print(f"Résumé sauvegardé: {summary_file}")
     
     return compliance_summary
 
 def generate_violation_report():
-    """Generate detailed violation report"""
     sparql = setup_sparql()
     
-    query = """
-    PREFIX : <http://example.org/organic#>
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    
-    SELECT ?farm ?sample ?pesticide ?value ?violationReason WHERE {
-        ?farm rdf:type :NonOrganicFarm .
-        ?farm :hasSoilSample ?sample .
-        ?sample :hasPesticide ?pesticide .
-        ?sample :hasValue ?value .
-        OPTIONAL { ?farm :hasViolationReason ?violationReason }
-    }
-    ORDER BY ?farm
-    """
+    # Load query from file
+    query = load_query("violation_report")
     
     sparql.setQuery(query)
     results = sparql.query().convert()
@@ -136,49 +109,39 @@ def generate_violation_report():
         sample_name = result["sample"]["value"].split("#")[-1]
         pesticide = result["pesticide"]["value"].split("#")[-1]
         value = float(result["value"]["value"])
-        reason = result.get("violationReason", {}).get("value", "Unknown violation")
+        reason = result.get("violationReason", {}).get("value", "Violation inconnue")
         
-        violation_type = "Unknown"
+        violation_type = "Inconnu"
         if pesticide in ["DDT", "Atrazine", "Chlordane"]:
-            violation_type = "Prohibited Pesticide"
+            violation_type = "Pesticide Interdit"
         elif "level exceeds" in reason.lower():
-            violation_type = "Concentration Limit Exceeded"
+            violation_type = "Limite de Concentration Dépassée"
         
         violations.append({
-            "Farm": farm_name,
-            "Sample": sample_name,
+            "Ferme": farm_name,
+            "Echantillon": sample_name,
             "Pesticide": pesticide,
             "Concentration": value,
-            "Violation_Type": violation_type,
-            "Violation_Reason": reason,
-            "Severity": "HIGH" if violation_type == "Prohibited Pesticide" else "MEDIUM"
+            "Type_Violation": violation_type,
+            "Raison_Violation": reason,
+            "Severite": "HAUTE" if violation_type == "Pesticide Interdit" else "MOYENNE"
         })
     
     if violations:
         df_violations = pd.DataFrame(violations)
-        violations_file = os.path.join(REPORTS_DIR, "violations_report.csv")
+        violations_file = os.path.join(REPORTS_DIR, "rapport_violations.csv")
         df_violations.to_csv(violations_file, index=False)
-        print(f"⚠️  Violations report saved: {violations_file}")
+        print(f"Rapport de violations sauvegardé: {violations_file}")
     else:
-        print("✅ No violations detected")
+        print("Aucune violation détectée")
     
     return violations
 
 def generate_certification_report():
-    """Generate certification status report"""
     sparql = setup_sparql()
     
-    query = """
-    PREFIX : <http://example.org/organic#>
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    
-    SELECT ?farm ?certStatus ?certDate WHERE {
-        ?farm rdf:type :OrganicFarm .
-        OPTIONAL { ?farm :certificationStatus ?certStatus }
-        OPTIONAL { ?farm :certificationDate ?certDate }
-    }
-    ORDER BY ?farm
-    """
+    # Load query from file
+    query = load_query("certification_report")
     
     sparql.setQuery(query)
     results = sparql.query().convert()
@@ -190,116 +153,86 @@ def generate_certification_report():
         cert_date = result.get("certDate", {}).get("value", datetime.now().isoformat())
         
         certifications.append({
-            "Farm": farm_name,
-            "Certification_Status": status,
-            "Certification_Date": cert_date,
-            "Valid_Until": "2025-12-31",  # Assuming 1-year validity
-            "Regulation_Compliance": "EU 2018/848"
+            "Ferme": farm_name,
+            "Statut_Certification": status,
+            "Date_Certification": cert_date,
+            "Valide_Jusqu": "2025-12-31",
+            "Conformite_Reglementation": "EU 2018/848"
         })
     
     if certifications:
-        df_cert = pd.DataFrame(certifications)
-        cert_file = os.path.join(REPORTS_DIR, "certification_report.csv")
-        df_cert.to_csv(cert_file, index=False)
-        print(f"🏆 Certification report saved: {cert_file}")
+        df_certifications = pd.DataFrame(certifications)
+        cert_file = os.path.join(REPORTS_DIR, "rapport_certification.csv")
+        df_certifications.to_csv(cert_file, index=False)
+        print(f"Rapport de certification sauvegardé: {cert_file}")
+    else:
+        print("Aucune certification trouvée")
     
     return certifications
 
 def generate_audit_trail():
-    """Generate audit trail for blockchain verification"""
-    sparql = setup_sparql()
-    
-    query = """
-    PREFIX : <http://example.org/organic#>
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    
-    SELECT ?farm ?farmType ?sample ?pesticide ?value WHERE {
-        ?farm :hasSoilSample ?sample .
-        ?sample :hasPesticide ?pesticide .
-        ?sample :hasValue ?value .
-        
-        OPTIONAL {
-            ?farm rdf:type ?farmType .
-            FILTER(?farmType IN (:OrganicFarm, :NonOrganicFarm))
-        }
-    }
-    ORDER BY ?farm
-    """
-    
-    sparql.setQuery(query)
-    results = sparql.query().convert()
-    
     audit_data = {
-        "audit_timestamp": datetime.now().isoformat(),
-        "regulation": "EU 2018/848",
-        "farms": {}
+        "date_audit": datetime.now().isoformat(),
+        "systeme": "Pipeline Certification Bio",
+        "etapes": [
+            {
+                "etape": "Import données capteurs",
+                "statut": "Terminé",
+                "timestamp": datetime.now().isoformat()
+            },
+            {
+                "etape": "Inférence sémantique",
+                "statut": "Terminé", 
+                "timestamp": datetime.now().isoformat()
+            },
+            {
+                "etape": "Génération rapports",
+                "statut": "En cours",
+                "timestamp": datetime.now().isoformat()
+            }
+        ],
+        "reglementation_appliquee": "EU 2018/848",
+        "version_systeme": "1.0"
     }
     
-    for result in results["results"]["bindings"]:
-        farm_name = result["farm"]["value"].split("#")[-1]
-        
-        if farm_name not in audit_data["farms"]:
-            audit_data["farms"][farm_name] = {
-                "samples": [],
-                "certification_status": "PENDING"
-            }
-        
-        sample_data = {
-            "sample_id": result["sample"]["value"].split("#")[-1],
-            "pesticide": result["pesticide"]["value"].split("#")[-1],
-            "concentration": float(result["value"]["value"])
-        }
-        
-        audit_data["farms"][farm_name]["samples"].append(sample_data)
-        
-        if "farmType" in result:
-            farm_type = result["farmType"]["value"].split("#")[-1]
-            audit_data["farms"][farm_name]["certification_status"] = (
-                "ORGANIC" if farm_type == "OrganicFarm" else "NON_ORGANIC"
-            )
-    
-    # Save audit trail
-    audit_file = os.path.join(REPORTS_DIR, "audit_trail.json")
+    audit_file = os.path.join(REPORTS_DIR, "piste_audit.json")
     with open(audit_file, 'w') as f:
         json.dump(audit_data, f, indent=2)
     
-    print(f"📝 Audit trail saved: {audit_file}")
+    print(f"Piste d'audit sauvegardée: {audit_file}")
     return audit_data
 
 def main():
-    print("📊 Generating compliance reports for organic agriculture certification")
-    print("🏛️  Based on EU Regulation 2018/848\n")
-    
-    # Ensure reports directory exists
-    ensure_reports_directory()
+    print("Génération des rapports de conformité")
+    print("Analyse des données de certification bio\n")
     
     try:
-        # Generate all reports
-        print("1️⃣  Generating compliance report...")
+        ensure_reports_directory()
+        
+        print("1. Génération du rapport de conformité...")
         compliance_summary = generate_compliance_report()
         
-        print("\n2️⃣  Generating violation report...")
+        print("\n2. Génération du rapport de violations...")
         violations = generate_violation_report()
         
-        print("\n3️⃣  Generating certification report...")
+        print("\n3. Génération du rapport de certification...")
         certifications = generate_certification_report()
         
-        print("\n4️⃣  Generating audit trail...")
+        print("\n4. Création de la piste d'audit...")
         audit_data = generate_audit_trail()
         
-        # Print summary
-        print("\n📈 Report Generation Summary:")
-        print(f"   Total Farms Processed: {compliance_summary['total_farms']}")
-        print(f"   Organic Certified: {compliance_summary['organic_farms']}")
-        print(f"   Non-Organic: {compliance_summary['non_organic_farms']}")
-        print(f"   Violations Detected: {len(violations)}")
-        print(f"   Certifications Issued: {len(certifications)}")
+        print(f"\nRésumé de la génération:")
+        print(f"   Fermes totales: {compliance_summary['total_fermes']}")
+        print(f"   Fermes bio: {compliance_summary['fermes_bio']}")
+        print(f"   Fermes non-bio: {compliance_summary['fermes_non_bio']}")
+        print(f"   Violations détectées: {len(violations)}")
+        print(f"   Certifications: {len(certifications)}")
         
-        print(f"\n📁 All reports saved to: {REPORTS_DIR}/")
-        print("✅ Report generation completed successfully!")
+        print("\nGénération des rapports terminée avec succès!")
+        print("Consultez le dossier 'reports/' pour les fichiers générés")
         
     except Exception as e:
-        print(f"❌ Error generating reports: {e}")
+        print(f"Erreur lors de la génération des rapports: {e}")
         raise
 
 if __name__ == "__main__":

@@ -3,11 +3,15 @@ import json
 from rdflib import Graph, Namespace, URIRef, Literal
 from rdflib.namespace import XSD
 
+print("Lecture des données capteurs...")
+
 with open('scripts/sensor_data.json') as f:
     entries = json.load(f)
 
 g = Graph()
 ns = Namespace("http://example.org/organic#")
+
+print(f"Traitement de {len(entries)} échantillons...")
 
 for e in entries:
     farm = URIRef(ns + e['farm'])
@@ -17,4 +21,5 @@ for e in entries:
     g.add((sample, ns.hasValue, Literal(e['value'], datatype=XSD.float)))
 
 g.serialize(destination='data/farm_data.ttl', format='turtle')
-print("Ingested", len(entries), "sensor readings")
+print(f"Import terminé: {len(entries)} lectures capteurs traitées")
+print("Données sauvegardées dans data/farm_data.ttl")
