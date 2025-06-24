@@ -4,27 +4,30 @@ import sys
 import time
 import requests
 import os
+from colorama import Fore, Style, init
+
+init(autoreset=True)
 
 def wait_for_jena(url, max_attempts=30):
-    print("Attente du serveur Jena...")
+    print(f"{Fore.YELLOW}⏳ Attente du serveur Jena...{Style.RESET_ALL}")
     for attempt in range(max_attempts):
         try:
             response = requests.get(url, timeout=5)
             if response.status_code == 200:
-                print("Jena est prêt!")
+                print(f"{Fore.GREEN}✅ Jena est prêt!{Style.RESET_ALL}")
                 return True
         except requests.RequestException:
             pass
         
         if attempt < max_attempts - 1:
-            print(f"   Tentative {attempt + 1}/{max_attempts} - nouvelle tentative dans 2 secondes...")
+            print(f"{Fore.YELLOW}   Tentative {attempt + 1}/{max_attempts} - nouvelle tentative dans 2 secondes...{Style.RESET_ALL}")
             time.sleep(2)
     
-    print(f"Erreur: Jena n'a pas démarré après {max_attempts} tentatives")
+    print(f"{Fore.RED}❌ Erreur: Jena n'a pas démarré après {max_attempts} tentatives{Style.RESET_ALL}")
     return False
 
 def wait_for_ganache(url, max_attempts=30):
-    print("Attente de Ganache...")
+    print(f"{Fore.YELLOW}⏳ Attente de Ganache...{Style.RESET_ALL}")
     payload = {
         "jsonrpc": "2.0",
         "method": "web3_clientVersion",
@@ -35,33 +38,33 @@ def wait_for_ganache(url, max_attempts=30):
         try:
             response = requests.post(url, json=payload, timeout=5)
             if response.status_code == 200 and "result" in response.json():
-                print("Ganache est prêt!")
+                print(f"{Fore.GREEN}✅ Ganache est prêt!{Style.RESET_ALL}")
                 return True
         except requests.RequestException:
             pass
         if attempt < max_attempts - 1:
-            print(f"   Tentative {attempt + 1}/{max_attempts} - nouvelle tentative dans 2 secondes...")
+            print(f"{Fore.YELLOW}   Tentative {attempt + 1}/{max_attempts} - nouvelle tentative dans 2 secondes...{Style.RESET_ALL}")
             time.sleep(2)
-    print(f"Erreur: Ganache n'a pas démarré après {max_attempts} tentatives")
+    print(f"{Fore.RED}❌ Erreur: Ganache n'a pas démarré après {max_attempts} tentatives{Style.RESET_ALL}")
     return False
 
 def run_command(cmd, desc):
-    print(f"\nExécution: {desc}...")
+    print(f"{Fore.CYAN}\n🚀 Exécution: {desc}...{Style.RESET_ALL}")
     try:
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        print(f"Terminé: {desc}")
+        print(f"{Fore.GREEN}✅ Terminé: {desc}{Style.RESET_ALL}")
         if result.stdout:
-            print(f"   Sortie: {result.stdout.strip()}")
+            print(f"{Fore.CYAN}   Sortie: {result.stdout.strip()}{Style.RESET_ALL}")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"Erreur lors de {desc}: {e}")
+        print(f"{Fore.RED}❌ Erreur lors de {desc}: {e}{Style.RESET_ALL}")
         if e.stderr:
-            print(f"   Détails: {e.stderr.strip()}")
+            print(f"{Fore.YELLOW}   Détails: {e.stderr.strip()}{Style.RESET_ALL}")
         return False
 
 def main():
-    print("Démarrage du pipeline de certification bio")
-    print("Système web sémantique pour l'agriculture biologique\n")
+    print(f"{Fore.MAGENTA}🎬 Démarrage du pipeline de certification bio{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}🌱 Système web sémantique pour l'agriculture biologique\n{Style.RESET_ALL}")
 
     fuseki_url = os.getenv('FUSEKI_URL', 'http://fuseki:3030')
     ganache_url = os.getenv('GANACHE_URL', 'http://ganache:8545')
@@ -70,7 +73,7 @@ def main():
     ganache_ready = wait_for_ganache(ganache_url)
     
     if not (jena_ready and ganache_ready):
-        print("Erreur: Les services requis ne sont pas prêts. Arrêt.")
+        print(f"{Fore.RED}❌ Erreur: Les services requis ne sont pas prêts. Arrêt.{Style.RESET_ALL}")
         sys.exit(1)
     
     if not run_command(['python3', 'scripts/ingest_sensor_data.py'], "Import des données capteurs IoT"):
@@ -88,9 +91,9 @@ def main():
     if not run_command(['python3', 'scripts/blockchain/post_to_blockchain.py'], "Publication des signatures sur la blockchain"):
         sys.exit(1)
     
-    print("\nPipeline de certification bio terminé avec succès!")
-    print("Consultez les rapports générés dans le dossier 'reports/'")
-    print("Preuves blockchain stockées pour vérification immuable")
+    print(f"{Fore.GREEN}\n🎉 Pipeline de certification bio terminé avec succès!{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}📁 Consultez les rapports générés dans le dossier 'reports/'{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}🔏 Preuves blockchain stockées pour vérification immuable{Style.RESET_ALL}")
 
 if __name__ == '__main__':
     main()

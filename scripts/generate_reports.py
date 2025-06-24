@@ -8,6 +8,9 @@ from datetime import datetime
 from SPARQLWrapper import SPARQLWrapper, JSON
 import pandas as pd
 from query_loader import load_query
+from colorama import Fore, Style, init
+
+init(autoreset=True)
 
 FUSEKI_URL = os.getenv('FUSEKI_URL', 'http://localhost:3030')
 FUSEKI_ENDPOINT = f"{FUSEKI_URL}/organic"
@@ -21,7 +24,7 @@ def setup_sparql():
 def ensure_reports_directory():
     if not os.path.exists(REPORTS_DIR):
         os.makedirs(REPORTS_DIR)
-        print(f"Dossier créé: {REPORTS_DIR}")
+        print(f"{Fore.CYAN}📁 Dossier créé: {REPORTS_DIR}{Style.RESET_ALL}")
 
 def generate_compliance_report():
     sparql = setup_sparql()
@@ -59,7 +62,7 @@ def generate_compliance_report():
     df = pd.DataFrame(farms_data)
     
     if df.empty:
-        print("Aucune donnée de ferme trouvée. Création d'un rapport vide.")
+        print(f"{Fore.YELLOW}⚠️ Aucune donnée de ferme trouvée. Création d'un rapport vide.{Style.RESET_ALL}")
         compliance_summary = {
             "date_rapport": datetime.now().isoformat(),
             "total_fermes": 0,
@@ -89,8 +92,8 @@ def generate_compliance_report():
     with open(summary_file, 'w') as f:
         json.dump(compliance_summary, f, indent=2)
     
-    print(f"Rapport de conformité sauvegardé: {report_file}")
-    print(f"Résumé sauvegardé: {summary_file}")
+    print(f"{Fore.GREEN}✅ Rapport de conformité sauvegardé: {report_file}{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}✅ Résumé sauvegardé: {summary_file}{Style.RESET_ALL}")
     
     return compliance_summary
 
@@ -131,9 +134,9 @@ def generate_violation_report():
         df_violations = pd.DataFrame(violations)
         violations_file = os.path.join(REPORTS_DIR, "rapport_violations.csv")
         df_violations.to_csv(violations_file, index=False)
-        print(f"Rapport de violations sauvegardé: {violations_file}")
+        print(f"{Fore.GREEN}✅ Rapport de violations sauvegardé: {violations_file}{Style.RESET_ALL}")
     else:
-        print("Aucune violation détectée")
+        print(f"{Fore.YELLOW}⚠️ Aucune violation détectée{Style.RESET_ALL}")
     
     return violations
 
@@ -164,9 +167,9 @@ def generate_certification_report():
         df_certifications = pd.DataFrame(certifications)
         cert_file = os.path.join(REPORTS_DIR, "rapport_certification.csv")
         df_certifications.to_csv(cert_file, index=False)
-        print(f"Rapport de certification sauvegardé: {cert_file}")
+        print(f"{Fore.GREEN}✅ Rapport de certification sauvegardé: {cert_file}{Style.RESET_ALL}")
     else:
-        print("Aucune certification trouvée")
+        print(f"{Fore.YELLOW}⚠️ Aucune certification trouvée{Style.RESET_ALL}")
     
     return certifications
 
@@ -199,40 +202,40 @@ def generate_audit_trail():
     with open(audit_file, 'w') as f:
         json.dump(audit_data, f, indent=2)
     
-    print(f"Piste d'audit sauvegardée: {audit_file}")
+    print(f"{Fore.GREEN}✅ Piste d'audit sauvegardée: {audit_file}{Style.RESET_ALL}")
     return audit_data
 
 def main():
-    print("Génération des rapports de conformité")
-    print("Analyse des données de certification bio\n")
+    print(f"{Fore.CYAN}📝 Génération des rapports de conformité{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}🔍 Analyse des données de certification bio\n{Style.RESET_ALL}")
     
     try:
         ensure_reports_directory()
         
-        print("1. Génération du rapport de conformité...")
+        print(f"{Fore.CYAN}1. Génération du rapport de conformité...{Style.RESET_ALL}")
         compliance_summary = generate_compliance_report()
         
-        print("\n2. Génération du rapport de violations...")
+        print(f"{Fore.CYAN}\n2. Génération du rapport de violations...{Style.RESET_ALL}")
         violations = generate_violation_report()
         
-        print("\n3. Génération du rapport de certification...")
+        print(f"{Fore.CYAN}\n3. Génération du rapport de certification...{Style.RESET_ALL}")
         certifications = generate_certification_report()
         
-        print("\n4. Création de la piste d'audit...")
+        print(f"{Fore.CYAN}\n4. Création de la piste d'audit...{Style.RESET_ALL}")
         audit_data = generate_audit_trail()
         
-        print(f"\nRésumé de la génération:")
-        print(f"   Fermes totales: {compliance_summary['total_fermes']}")
-        print(f"   Fermes bio: {compliance_summary['fermes_bio']}")
-        print(f"   Fermes non-bio: {compliance_summary['fermes_non_bio']}")
-        print(f"   Violations détectées: {len(violations)}")
-        print(f"   Certifications: {len(certifications)}")
+        print(f"{Fore.CYAN}\nRésumé de la génération:{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}   Fermes totales: {compliance_summary['total_fermes']}{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}   Fermes bio: {compliance_summary['fermes_bio']}{Style.RESET_ALL}")
+        print(f"{Fore.RED}   Fermes non-bio: {compliance_summary['fermes_non_bio']}{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}   Violations détectées: {len(violations)}{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}   Certifications: {len(certifications)}{Style.RESET_ALL}")
         
-        print("\nGénération des rapports terminée avec succès!")
-        print("Consultez le dossier 'reports/' pour les fichiers générés")
+        print(f"{Fore.GREEN}\nGénération des rapports terminée avec succès!{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}Consultez le dossier 'reports/' pour les fichiers générés{Style.RESET_ALL}")
         
     except Exception as e:
-        print(f"Erreur lors de la génération des rapports: {e}")
+        print(f"{Fore.RED}❌ Erreur lors de la génération des rapports: {e}{Style.RESET_ALL}")
         raise
 
 if __name__ == "__main__":

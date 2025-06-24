@@ -10,6 +10,9 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 from rdflib import Graph, Namespace, URIRef, RDF, RDFS, OWL
 from rdflib.namespace import XSD
 from query_loader import load_verification_queries, load_swrl_rules
+from colorama import Fore, Style, init
+
+init(autoreset=True)
 
 FUSEKI_URL = os.getenv('FUSEKI_URL', 'http://localhost:3030')
 FUSEKI_ENDPOINT = f"{FUSEKI_URL}/organic"
@@ -38,30 +41,30 @@ def execute_sparql_update(query, description):
         response = requests.post(url, data=query, headers=headers)
         
         if response.status_code == 200:
-            print(f"   Terminé: {description}")
+            print(f"{Fore.GREEN}✅ Terminé: {description}{Style.RESET_ALL}")
             return True
         else:
-            print(f"   Erreur dans {description}: HTTP {response.status_code}")
-            print(f"   Réponse: {response.text}")
+            print(f"{Fore.RED}❌ Erreur dans {description}: HTTP {response.status_code}{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}⚠️ Réponse: {response.text}{Style.RESET_ALL}")
             return False
             
     except Exception as e:
-        print(f"   Erreur dans {description}: {e}")
+        print(f"{Fore.RED}❌ Erreur dans {description}: {e}{Style.RESET_ALL}")
         return False
 
 def run_inference_rules():
     sparql = setup_sparql()
     
-    print("Exécution des règles d'inférence sémantique...")
+    print(f"{Fore.MAGENTA}🧠 Exécution des règles d'inférence sémantique...")
     
     try:
         swrl_rules = load_swrl_rules()
-        print("   Règles SWRL chargées pour le raisonnement")
-        print("   Application des règles via SPARQL updates...")
+        print(f"{Fore.CYAN}   Règles SWRL chargées pour le raisonnement")
+        print(f"{Fore.YELLOW}   Application des règles via SPARQL updates...")
         
     except Exception as e:
-        print(f"   Erreur lors du chargement des règles SWRL: {e}")
-        print("   Utilisation des règles SPARQL de fallback...")
+        print(f"{Fore.RED}❌ Erreur lors du chargement des règles SWRL: {e}{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}   Utilisation des règles SPARQL de fallback...")
     
     inference_query_1 = """
     PREFIX : <http://example.org/organic#>
@@ -128,10 +131,10 @@ def run_inference_rules():
     ]
     
     for desc, query in rules:
-        print(f"   Exécution: {desc}")
+        print(f"{Fore.CYAN}   Exécution: {desc}")
         execute_sparql_update(query, desc)
     
-    print("Inférence sémantique terminée")
+    print(f"{Fore.GREEN}🎉 Inférence sémantique terminée{Style.RESET_ALL}")
 
 def verify_inference_results():
     sparql = setup_sparql()
@@ -139,27 +142,27 @@ def verify_inference_results():
     # Load verification queries from files
     organic_query, non_organic_query = load_verification_queries()
     
-    print("\nRésultats de l'inférence:")
+    print(f"{Fore.BLUE}\n📊 Résultats de l'inférence:{Style.RESET_ALL}")
     
     sparql.setQuery(organic_query)
     results = sparql.query().convert()
     organic_farms = results["results"]["bindings"]
     
-    print(f"Fermes certifiées bio: {len(organic_farms)}")
+    print(f"{Fore.GREEN}🌱 Fermes certifiées bio: {len(organic_farms)}{Style.RESET_ALL}")
     for farm in organic_farms:
         farm_name = farm["farm"]["value"].split("#")[-1]
         status = farm.get("status", {}).get("value", "CERTIFIED")
-        print(f"   • {farm_name}: {status}")
+        print(f"{Fore.GREEN}   • {farm_name}: {status}{Style.RESET_ALL}")
     
     sparql.setQuery(non_organic_query)
     results = sparql.query().convert()
     non_organic_farms = results["results"]["bindings"]
     
-    print(f"Fermes non-bio: {len(non_organic_farms)}")
+    print(f"{Fore.RED}🚫 Fermes non-bio: {len(non_organic_farms)}{Style.RESET_ALL}")
     for farm in non_organic_farms:
         farm_name = farm["farm"]["value"].split("#")[-1]
         reason = farm.get("reason", {}).get("value", "Violation de réglementation")
-        print(f"   • {farm_name}: {reason}")
+        print(f"{Fore.RED}   • {farm_name}: {reason}{Style.RESET_ALL}")
     
     return len(organic_farms), len(non_organic_farms)
 
@@ -172,15 +175,15 @@ def main():
 
         organic_count, non_organic_count = verify_inference_results()
         
-        print(f"\nRésumé:")
-        print(f"   Fermes bio: {organic_count}")
-        print(f"   Fermes non-bio: {non_organic_count}")
-        print(f"   Total traité: {organic_count + non_organic_count}")
+        print(f"{Fore.CYAN}\nRésumé:{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}   Fermes bio: {organic_count}{Style.RESET_ALL}")
+        print(f"{Fore.RED}   Fermes non-bio: {non_organic_count}{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}   Total traité: {organic_count + non_organic_count}{Style.RESET_ALL}")
         
-        print("\nInférence sémantique terminée avec succès!")
+        print(f"{Fore.GREEN}\n🎉 Inférence sémantique terminée avec succès!{Style.RESET_ALL}")
         
     except Exception as e:
-        print(f"Erreur lors de l'inférence: {e}")
+        print(f"{Fore.RED}❌ Erreur lors de l'inférence: {e}{Style.RESET_ALL}")
         raise
 
 if __name__ == "__main__":

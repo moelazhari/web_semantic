@@ -7,10 +7,13 @@ from web3 import Web3
 from web3.middleware import geth_poa_middleware
 from eth_account import Account
 from dotenv import load_dotenv
+from colorama import Fore, Style, init
 
 load_dotenv()
 PROOFS_DIR = "proofs"
 BLOCKCHAIN_DIR = "blockchain_receipts"
+
+init(autoreset=True)
 
 def setup_web3():
     rpc_url = os.getenv("GANACHE_URL", "http://localhost:8545")
@@ -28,16 +31,16 @@ def setup_web3():
     
     account = Account.from_key(private_key)
     
-    print(f"Connecté à la blockchain: {rpc_url}")
-    print(f"Compte utilisé: {account.address}")
-    print(f"Solde: {w3.from_wei(w3.eth.get_balance(account.address), 'ether')} ETH")
+    print(f"{Fore.YELLOW}⛓️ Connecté à la blockchain: {rpc_url}{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}💰 Compte utilisé: {account.address}{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}💸 Solde: {w3.from_wei(w3.eth.get_balance(account.address), 'ether')} ETH{Style.RESET_ALL}")
     
     return w3, account
 
 def ensure_blockchain_directory():
     if not os.path.exists(BLOCKCHAIN_DIR):
         os.makedirs(BLOCKCHAIN_DIR)
-        print(f"Dossier créé: {BLOCKCHAIN_DIR}")
+        print(f"{Fore.GREEN}✅ Dossier créé: {BLOCKCHAIN_DIR}{Style.RESET_ALL}")
 
 def load_signatures():
     signatures_file = os.path.join(PROOFS_DIR, "signatures.json")
@@ -48,7 +51,7 @@ def load_signatures():
     with open(signatures_file, 'r') as f:
         signatures = json.load(f)
     
-    print(f"Chargement de {len(signatures)} signatures depuis {signatures_file}")
+    print(f"{Fore.CYAN}🔏 Chargement de {len(signatures)} signatures depuis {signatures_file}{Style.RESET_ALL}")
     return signatures
 
 def create_certification_contract_data(farm_id, signature_data):
@@ -84,16 +87,16 @@ def post_certification_to_blockchain(w3, account, farm_id, signature_data):
         signed_txn = account.sign_transaction(transaction)
         tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         
-        print(f"   Transaction envoyée pour {farm_id}")
+        print(f"{Fore.CYAN}🔗 Transaction envoyée pour {farm_id}{Style.RESET_ALL}")
         print(f"   Hash TX: {tx_hash.hex()}")
         
-        print(f"   Attente de confirmation...")
+        print(f"{Fore.YELLOW}⏳ Attente de confirmation...{Style.RESET_ALL}")
         receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=120)
         
         if receipt.status == 1:
-            print(f"   Transaction confirmée pour {farm_id}")
-            print(f"   Bloc: {receipt.blockNumber}")
-            print(f"   Gas utilisé: {receipt.gasUsed}")
+            print(f"{Fore.GREEN}✅ Transaction confirmée pour {farm_id}{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}   Bloc: {receipt.blockNumber}{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}   Gas utilisé: {receipt.gasUsed}{Style.RESET_ALL}")
             
             receipt_data = {
                 "farm_id": farm_id,
@@ -112,11 +115,11 @@ def post_certification_to_blockchain(w3, account, farm_id, signature_data):
             return receipt_data
             
         else:
-            print(f"   Transaction échouée pour {farm_id}")
+            print(f"{Fore.RED}❌ Transaction échouée pour {farm_id}{Style.RESET_ALL}")
             return None
             
     except Exception as e:
-        print(f"   Erreur lors de la publication de {farm_id}: {e}")
+        print(f"{Fore.RED}❌ Erreur lors de la publication de {farm_id}: {e}{Style.RESET_ALL}")
         return None
 
 def save_blockchain_receipts(receipts):
@@ -130,10 +133,10 @@ def save_blockchain_receipts(receipts):
     with open(combined_file, 'w') as f:
         json.dump([r for r in receipts if r], f, indent=2)
     
-    print(f"Reçus blockchain sauvegardés dans {BLOCKCHAIN_DIR}/")
+    print(f"{Fore.GREEN}✅ Reçus blockchain sauvegardés dans {BLOCKCHAIN_DIR}/{Style.RESET_ALL}")
 
 def verify_blockchain_storage(w3, receipts):
-    print("\nVérification du stockage blockchain...")
+    print(f"{Fore.CYAN}\nVérification du stockage blockchain...{Style.RESET_ALL}")
     
     verified_count = 0
     for receipt in receipts:
@@ -147,57 +150,57 @@ def verify_blockchain_storage(w3, receipts):
             stored_json = json.loads(stored_data)
             
             if stored_json['farm_id'] == receipt['farm_id']:
-                print(f"   {receipt['farm_id']}: Données vérifiées sur blockchain")
+                print(f"{Fore.GREEN}   {receipt['farm_id']}: Données vérifiées sur blockchain{Style.RESET_ALL}")
                 verified_count += 1
             else:
-                print(f"   {receipt['farm_id']}: Incohérence de données")
+                print(f"{Fore.RED}   {receipt['farm_id']}: Incohérence de données{Style.RESET_ALL}")
                 
         except Exception as e:
-            print(f"   {receipt['farm_id']}: Erreur de vérification: {e}")
+            print(f"{Fore.RED}   {receipt['farm_id']}: Erreur de vérification: {e}{Style.RESET_ALL}")
     
-    print(f"Vérification terminée: {verified_count}/{len([r for r in receipts if r])} fermes vérifiées")
+    print(f"{Fore.CYAN}Vérification terminée: {verified_count}/{len([r for r in receipts if r])} fermes vérifiées{Style.RESET_ALL}")
 
 def main():
-    print("Publication des preuves de certification bio sur blockchain")
-    print("Création d'une piste d'audit immuable\n")
+    print(f"{Fore.CYAN}Publication des preuves de certification bio sur blockchain{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}Création d'une piste d'audit immuable\n{Style.RESET_ALL}")
     
     try:
         ensure_blockchain_directory()
         w3, account = setup_web3()
         
-        print("\n1. Chargement des signatures...")
+        print(f"{Fore.CYAN}\n1. Chargement des signatures...{Style.RESET_ALL}")
         signatures = load_signatures()
         
-        print("\n2. Publication sur blockchain...")
+        print(f"{Fore.CYAN}\n2. Publication sur blockchain...{Style.RESET_ALL}")
         receipts = []
         
         for farm_id, signature_data in signatures.items():
-            print(f"   Publication de {farm_id}...")
+            print(f"{Fore.CYAN}   Publication de {farm_id}...{Style.RESET_ALL}")
             receipt = post_certification_to_blockchain(w3, account, farm_id, signature_data)
             receipts.append(receipt)
             
             if receipt:
-                print(f"   Succès pour {farm_id}")
+                print(f"{Fore.GREEN}   Succès pour {farm_id}{Style.RESET_ALL}")
             else:
-                print(f"   Échec pour {farm_id}")
+                print(f"{Fore.RED}   Échec pour {farm_id}{Style.RESET_ALL}")
         
-        print("\n3. Sauvegarde des reçus...")
+        print(f"{Fore.CYAN}\n3. Sauvegarde des reçus...{Style.RESET_ALL}")
         save_blockchain_receipts(receipts)
         
-        print("\n4. Vérification du stockage...")
+        print(f"{Fore.CYAN}\n4. Vérification du stockage...{Style.RESET_ALL}")
         verify_blockchain_storage(w3, receipts)
         
         successful_receipts = [r for r in receipts if r]
-        print(f"\nRésumé:")
-        print(f"   Publications réussies: {len(successful_receipts)}")
-        print(f"   Publications échouées: {len(receipts) - len(successful_receipts)}")
-        print(f"   Total traité: {len(receipts)}")
+        print(f"{Fore.CYAN}\nRésumé:{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}   Publications réussies: {len(successful_receipts)}{Style.RESET_ALL}")
+        print(f"{Fore.RED}   Publications échouées: {len(receipts) - len(successful_receipts)}{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}   Total traité: {len(receipts)}{Style.RESET_ALL}")
         
-        print("\nPublication blockchain terminée avec succès!")
-        print("Preuves stockées de manière immuable pour vérification")
+        print(f"{Fore.GREEN}\nPublication blockchain terminée avec succès!{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}Preuves stockées de manière immuable pour vérification{Style.RESET_ALL}")
         
     except Exception as e:
-        print(f"Erreur lors de la publication blockchain: {e}")
+        print(f"{Fore.RED}Erreur lors de la publication blockchain: {e}{Style.RESET_ALL}")
         raise
 
 if __name__ == "__main__":
