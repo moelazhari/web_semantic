@@ -42,11 +42,6 @@ def generate_compliance_report():
         sample_name = result["sample"]["value"].split("#")[-1]
         chemical = result["chemical"]["value"].split("#")[-1]
         value = float(result["value"]["value"])
-        
-        product_type = "Inconnu"
-        if "productType" in result:
-            product_type = result["productType"]["value"].split("#")[-1]
-        
         cert_status = result.get("certStatus", {}).get("value", "N/A")
         violation = result.get("violationReason", {}).get("value", "N/A")
         
@@ -56,7 +51,6 @@ def generate_compliance_report():
             "Echantillon": sample_name,
             "Substance_Chimique": chemical,
             "Concentration": value,
-            "Type_Produit": product_type,
             "Statut_Certification": cert_status,
             "Raison_Violation": violation
         })
@@ -72,10 +66,10 @@ def generate_compliance_report():
         # Generate summary
         summary = {
             "total_products": len(df["Produit"].unique()),
-            "organic_products": len(df[df["Type_Produit"] == "OrganicProduct"]["Produit"].unique()),
-            "non_organic_products": len(df[df["Type_Produit"] == "NonOrganicProduct"]["Produit"].unique()),
+            "organic_products": len(df[df["Statut_Certification"] == "CERTIFIED"]["Produit"].unique()),
+            "non_organic_products": len(df[df["Statut_Certification"] == "REJECTED"]["Produit"].unique()),
             "by_category": df.groupby("Catégorie")["Produit"].nunique().to_dict(),
-            "violations": len(df[df["Raison_Violation"] != "N/A"]),
+            "violations": len(df[df["Raison_Violation"] != "N/A"]["Produit"].unique()),
             "timestamp": datetime.now().isoformat()
         }
         

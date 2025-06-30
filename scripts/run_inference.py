@@ -99,13 +99,6 @@ def run_inference_rules():
         ?product :hasSample ?sample .
         ?sample :hasChemical ?chemical .
         ?chemical rdf:type :ProhibitedChemical .
-        
-        FILTER NOT EXISTS {
-            ?product rdf:type :NonOrganicProduct
-        }
-        FILTER NOT EXISTS {
-            ?product rdf:type :OrganicProduct
-        }
     }
     """
     
@@ -135,9 +128,6 @@ def run_inference_rules():
         FILTER NOT EXISTS {
             ?product rdf:type :NonOrganicProduct
         }
-        FILTER NOT EXISTS {
-            ?product rdf:type :OrganicProduct
-        }
     }
     """
     
@@ -154,13 +144,15 @@ def run_inference_rules():
     WHERE {
         ?product rdf:type :Product .
         
-        # Check that all chemicals are allowed and within limits
-        NOT EXISTS {
+        # Product must not have any prohibited chemicals
+        FILTER NOT EXISTS {
             ?product :hasSample ?s1 .
             ?s1 :hasChemical ?c1 .
             ?c1 rdf:type :ProhibitedChemical .
         }
-        NOT EXISTS {
+        
+        # Product must not have any excessive chemical levels
+        FILTER NOT EXISTS {
             ?product :hasSample ?s2 .
             ?s2 :hasChemical ?c2 .
             ?s2 :hasValue ?v2 .
@@ -168,6 +160,7 @@ def run_inference_rules():
             FILTER(?v2 > ?max2)
         }
         
+        # Product must not already be classified
         FILTER NOT EXISTS {
             ?product rdf:type :NonOrganicProduct
         }

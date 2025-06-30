@@ -1,14 +1,14 @@
 {
   "product_id": "Rice_Batch1",
-  "timestamp": "2025-06-30T03:45:53.376639",
-  "rdf_hash": "091e07ec53ecf398fae825b1410ea50db95c7030474910ad98258454ef72eb2c",
+  "timestamp": "2025-06-30T04:28:21.676227",
+  "rdf_hash": "da99d7de443929f19dc23a514395714ed1375ed98a0840b4ab267fc12b7337ce",
   "regulation": "EU_2018_848",
   "proof_type": "ORGANIC_CERTIFICATION",
-  "rdf_data": "@prefix organic: <http://example.org/organic#> .\n\norganic:Rice_Batch1 a organic:OrganicProduct ;\n    organic:certificationDate <http://example.org/organic#2025-06-30T03:45:53.376147> ;\n    organic:certificationStatus organic:CERTIFIED ;\n    organic:hasCategory organic:Cereals ;\n    organic:hasSample organic:Sample_Rice_Batch1_3,\n        organic:Sample_Rice_Batch1_6 ;\n    organic:regulation organic:EU_2018_848 .\n\norganic:Sample_Rice_Batch1_3 organic:hasChemical organic:Atrazine ;\n    organic:hasValue organic:0.03 .\n\norganic:Sample_Rice_Batch1_6 organic:hasChemical organic:Atrazine ;\n    organic:hasValue organic:0.03 .\n\n",
+  "rdf_data": "@prefix organic: <http://example.org/organic#> .\n\norganic:Rice_Batch1 a organic:NonOrganicProduct ;\n    organic:certificationDate <http://example.org/organic#2025-06-30T04:28:21.675776> ;\n    organic:certificationStatus organic:REJECTED ;\n    organic:hasCategory organic:Cereals ;\n    organic:hasSample organic:Sample_Rice_Batch1_3 ;\n    organic:regulation organic:EU_2018_848 .\n\norganic:Sample_Rice_Batch1_3 organic:hasChemical organic:Atrazine ;\n    organic:hasValue organic:0.03 .\n\n",
   "signature": {
-    "r": 30339840573541241999986087735454097424262180246938140531328158927184796334627,
-    "s": 20830157034576491166893323778699462700882606089125073055022652363692830034669,
-    "v": 27,
+    "r": 8202632259101731192705766545104515281252447396233389794520661379361151395664,
+    "s": 52044773657837192829578347658399672248234947920559899801422820020048841496721,
+    "v": 28,
     "signer_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
   }
 }

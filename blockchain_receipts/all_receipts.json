@@ -1,110 +1,110 @@
 {
   "Apples_Batch1": {
-    "transaction_hash": "0xc5927288209b6e4f1e90c1a04d98dabc13fc156bc619350ce0f6e496cb52e4b6",
+    "transaction_hash": "0xdaadf10f6dfae5d64b8d1065cd8c31188172c3e3ea74f060858b2c3c6485c7bb",
     "block_number": 1,
     "certification_data": {
       "product_id": "Apples_Batch1",
-      "rdf_hash": "118a79afc31af624f2a7980a1d59b4171a9fb80b4f3a426023e836fe47c62670",
-      "timestamp": "2025-06-30T03:45:53.266844",
+      "rdf_hash": "12edc6a75093778a7115e2153542805a509bc46af5347384db06c03126f9e4c1",
+      "timestamp": "2025-06-30T04:28:21.568580",
       "regulation": "EU_2018_848"
     },
     "status": "success"
   },
   "Bananas_Batch1": {
-    "transaction_hash": "0x063b84cbd57ec76caf11610463b1ecb843862ca6faeb029cd822a23dae4b7499",
+    "transaction_hash": "0x0f03c35a89d793facca85bbc1a5dd028edb0b48ea31abfa7f55f171076b46990",
     "block_number": 2,
     "certification_data": {
       "product_id": "Bananas_Batch1",
-      "rdf_hash": "f64cd7eac9ef82818266392883e10c8ef73d71729d29219f7d55c9c1d3d9f9d5",
-      "timestamp": "2025-06-30T03:45:53.287689",
+      "rdf_hash": "88d1135538cc4d53e8de0c690d7d679a321f84717d21363c118501092eeee67c",
+      "timestamp": "2025-06-30T04:28:21.589874",
       "regulation": "EU_2018_848"
     },
     "status": "success"
   },
   "Carrots_Batch1": {
-    "transaction_hash": "0x61663fe788793ce1a47ae507cf3d232afac0e4c1e7b10e11f3c3ebe67370e3ae",
+    "transaction_hash": "0xbb3246ac6e0298c0863943a58b0794813cfa82029878ba790f16894e7ff6937e",
     "block_number": 3,
     "certification_data": {
       "product_id": "Carrots_Batch1",
-      "rdf_hash": "f039861c16bd37ff9f039465a67d3a043a0ea07c4b7194fbe45a4d4c36be4d42",
-      "timestamp": "2025-06-30T03:45:53.306991",
+      "rdf_hash": "dff576ceaf79c1d1a2f95b839c8c0809fee91c04e51ddd4ddab3dd7b061a3bfd",
+      "timestamp": "2025-06-30T04:28:21.607482",
       "regulation": "EU_2018_848"
     },
     "status": "success"
   },
   "Milk_Batch1": {
-    "transaction_hash": "0x9d96f9b0ababca190ab55bfcc936e92a410bce0a1bb62d56c2c85635e8c31a42",
+    "transaction_hash": "0x1e20f5f72ab4c98221c94631cf978477c41d9b097f5d7d71affebaa12b15a1d2",
     "block_number": 4,
     "certification_data": {
       "product_id": "Milk_Batch1",
-      "rdf_hash": "03b4740a3065d1ba175c03e9165b22caf7e167182142e0d5fba1213ea68ce17c",
-      "timestamp": "2025-06-30T03:45:53.325693",
+      "rdf_hash": "de4829820d727c297fbbbfd7a6ce70e2d9ac1b61d5d50a496c80d4262ebca5a7",
+      "timestamp": "2025-06-30T04:28:21.624442",
       "regulation": "EU_2018_848"
     },
     "status": "success"
   },
   "Oranges_Batch1": {
-    "transaction_hash": "0x5dc799ef907c207d815b16f59076ff4d05bf16cd674be9a0b0e10876095c5454",
+    "transaction_hash": "0x9e3137ff09da84cef1bb29da790dc5d98aaf6b3ad1da4d84587e37d1efbfbecf",
     "block_number": 5,
     "certification_data": {
       "product_id": "Oranges_Batch1",
-      "rdf_hash": "57c77c95c048a987cd3087c64ef738b400bd97efb79548b12d66a02b62f0b610",
-      "timestamp": "2025-06-30T03:45:53.342984",
+      "rdf_hash": "ab4701f827eefeecc8223c5ce7bcbd73ed5b7fc66c8f699ee4175685413fb0ba",
+      "timestamp": "2025-06-30T04:28:21.640607",
       "regulation": "EU_2018_848"
     },
     "status": "success"
   },
   "Potatoes_Batch1": {
-    "transaction_hash": "0xda31ccc5866ec15bc13434709d92b0ba1a080084082f7ea0ec1aa020b736330f",
+    "transaction_hash": "0x8a9f82edcbac8e95de5578dda0996af8067d8a742ab243350b0e4d35f89875fb",
     "block_number": 6,
     "certification_data": {
       "product_id": "Potatoes_Batch1",
-      "rdf_hash": "72ed5367910cc7b6c97f16599713fd0b1d8ad626cc5ee0aece5894ddf34e7c11",
-      "timestamp": "2025-06-30T03:45:53.359819",
+      "rdf_hash": "e1ca23154e0afa757908c7c3ca172b98bded8db4fc7e37584137c30433e77a8d",
+      "timestamp": "2025-06-30T04:28:21.657754",
       "regulation": "EU_2018_848"
     },
     "status": "success"
   },
   "Rice_Batch1": {
-    "transaction_hash": "0xabea914ea181f59af41013f26f121e07c4a712b29c0e84ad83f1883bb8d74913",
+    "transaction_hash": "0xeec576f26c9e678b59054ba967bc4abf92bfdcdbf23a79cffc570a90bd6c392d",
     "block_number": 7,
     "certification_data": {
       "product_id": "Rice_Batch1",
-      "rdf_hash": "091e07ec53ecf398fae825b1410ea50db95c7030474910ad98258454ef72eb2c",
-      "timestamp": "2025-06-30T03:45:53.376639",
+      "rdf_hash": "da99d7de443929f19dc23a514395714ed1375ed98a0840b4ab267fc12b7337ce",
+      "timestamp": "2025-06-30T04:28:21.676227",
       "regulation": "EU_2018_848"
     },
     "status": "success"
   },
   "Tomatoes_Batch1": {
-    "transaction_hash": "0xc08ee839800f02ee03e5ed7ffa0ad70b6633c74953aee45b4b4f8feb76d98204",
+    "transaction_hash": "0x25649cc0b43ef48371611e51cb43da012f94b8eb55efa0775f8835f597940bd1",
     "block_number": 8,
     "certification_data": {
       "product_id": "Tomatoes_Batch1",
-      "rdf_hash": "d972a408a154c7d54e80e0f5807e959056d532ba3c3f9011c7fad4e23760e6b4",
-      "timestamp": "2025-06-30T03:45:53.393980",
+      "rdf_hash": "b9a30a2333a6291592a06633691d9a6d9ea2ea123741999b7e08b38c19614a30",
+      "timestamp": "2025-06-30T04:28:21.694113",
       "regulation": "EU_2018_848"
     },
     "status": "success"
   },
   "Wheat_Batch1": {
-    "transaction_hash": "0xa41bf4d477fbd5abb2b119995900d69e05d636333924c4213b366b080331239d",
+    "transaction_hash": "0x05d9d0fd2ed139f2163d9c123cf1a95d0f7080e0b1debca951029512802efd0c",
     "block_number": 9,
     "certification_data": {
       "product_id": "Wheat_Batch1",
-      "rdf_hash": "92ecd5b911ec52b1cba9b230de020d5592dc52f51919b5920d3e90334844b612",
-      "timestamp": "2025-06-30T03:45:53.412641",
+      "rdf_hash": "d074ac5a108cc9a8f3a665125b3c7e2561ff4dab90604b199ca4ce15f4743717",
+      "timestamp": "2025-06-30T04:28:21.710840",
       "regulation": "EU_2018_848"
     },
     "status": "success"
   },
   "Yogurt_Batch1": {
-    "transaction_hash": "0x85c317b3b771978c66d9f000d07c09d6f18267945ebe9990f139e4d35a5dfb9b",
+    "transaction_hash": "0x3a02c87511e97c52c7eccbb5964684d93a32d9b07191bdf791825a6f38ac303b",
     "block_number": 10,
     "certification_data": {
       "product_id": "Yogurt_Batch1",
-      "rdf_hash": "8be7a15fc648f2d99800da309dc67a680428ee3a1617c0b844b0f295f17584e4",
-      "timestamp": "2025-06-30T03:45:53.428662",
+      "rdf_hash": "f17934279069d39e67b03d17fc167f65e1933fa503e3e32eda8a88c914f31aad",
+      "timestamp": "2025-06-30T04:28:21.725894",
       "regulation": "EU_2018_848"
     },
     "status": "success"

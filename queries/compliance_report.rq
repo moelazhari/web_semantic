@@ -2,18 +2,21 @@ PREFIX : <http://example.org/organic#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT ?product ?category ?sample ?chemical ?value ?certStatus ?violationReason WHERE {
+SELECT DISTINCT ?product ?category ?sample ?chemical ?value ?certStatus ?violationReason WHERE {
     ?product :hasSample ?sample ;
              :hasCategory ?category .
     ?sample :hasChemical ?chemical ;
             :hasValue ?value .
     
-    OPTIONAL {
-        ?product rdf:type ?productType .
-        FILTER(?productType IN (:OrganicProduct, :NonOrganicProduct))
+    {
+        # Get certification status for organic products
+        ?product rdf:type :OrganicProduct ;
+                :certificationStatus ?certStatus .
+    } UNION {
+        # Get certification status and violation reason for non-organic products
+        ?product rdf:type :NonOrganicProduct ;
+                :certificationStatus ?certStatus ;
+                :hasViolationReason ?violationReason .
     }
-    
-    OPTIONAL { ?product :certificationStatus ?certStatus }
-    OPTIONAL { ?product :hasViolationReason ?violationReason }
 }
 ORDER BY ?product ?sample
