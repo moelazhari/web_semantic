@@ -1,0 +1,23 @@
+PREFIX : <http://example.org/organic#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?product ?productName ?farm ?category ?harvestDate ?certificationStatus ?sensorType ?sensorValue ?sensorTimestamp WHERE {
+    ?product rdf:type :Product .
+    ?product :hasName ?productName .
+    ?product :producedBy ?farm .
+    ?product :hasCategory ?category .
+    ?product :hasHarvestDate ?harvestDate .
+    ?product :hasSensorType ?sensorType .
+    ?product :hasSensorValue ?sensorValue .
+    ?product :hasSensorTimestamp ?sensorTimestamp .
+    
+    OPTIONAL {
+        ?product rdf:type :OrganicProduct .
+        BIND("Organic" AS ?certificationStatus)
+    }
+    OPTIONAL {
+        ?product rdf:type :NonOrganicProduct .
+        BIND("Non-Organic" AS ?certificationStatus)
+    }
+}
+ORDER BY ?productName 

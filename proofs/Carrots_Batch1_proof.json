@@ -1,13 +1,13 @@
 {
   "product_id": "Carrots_Batch1",
-  "timestamp": "2025-06-30T04:28:21.607482",
-  "rdf_hash": "dff576ceaf79c1d1a2f95b839c8c0809fee91c04e51ddd4ddab3dd7b061a3bfd",
+  "timestamp": "2025-06-30T16:17:40.136764",
+  "rdf_hash": "85e9fd4e4c3c1cc03dc903398dfd5d94b440d29fa0a2ad10c82848841116f02f",
   "regulation": "EU_2018_848",
   "proof_type": "ORGANIC_CERTIFICATION",
-  "rdf_data": "@prefix organic: <http://example.org/organic#> .\n\norganic:Carrots_Batch1 a organic:OrganicProduct ;\n    organic:certificationDate <http://example.org/organic#2025-06-30T04:28:21.607040> ;\n    organic:certificationStatus organic:CERTIFIED ;\n    organic:hasCategory organic:Vegetables ;\n    organic:hasSample organic:Sample_Carrots_Batch1_3 ;\n    organic:regulation organic:EU_2018_848 .\n\norganic:Sample_Carrots_Batch1_3 organic:hasChemical organic:Pyrethrin ;\n    organic:hasValue organic:0.08 .\n\n",
+  "rdf_data": "@prefix organic: <http://example.org/organic#> .\n\norganic:Carrots_Batch1 a organic:OrganicProduct ;\n    organic:certificationDate <http://example.org/organic#2025-06-30T16:17:40.136276> ;\n    organic:certificationStatus organic:CERTIFIED ;\n    organic:hasCategory organic:Vegetables ;\n    organic:hasSample organic:Sample_Carrots_Batch1_3 ;\n    organic:regulation organic:EU_2018_848 .\n\norganic:Sample_Carrots_Batch1_3 organic:hasChemical organic:Pyrethrin ;\n    organic:hasValue organic:0.08 .\n\n",
   "signature": {
-    "r": 114481066194446661210973187826954958860259688207440267390511065169725993033969,
-    "s": 53594311294853395138657480906554886689068195927860927139839410208651464912740,
+    "r": 55008560932643731214077586905289815953687426536872221300381222924988093862093,
+    "s": 44549517174881034655858254326366965902013737931946280776573499357593980152608,
     "v": 28,
     "signer_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
   }

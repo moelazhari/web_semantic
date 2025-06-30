@@ -1,5 +1,4 @@
-# Configuration Docker pour le pipeline de certification bio
-# Système web sémantique avec blockchain
+version: '3.8'
 
 services:
   organic_app:
@@ -22,15 +21,16 @@ services:
       - FUSEKI_USER=admin
       - FUSEKI_PASSWORD=admin123
     command: ["python3", "main.py"]
+    networks:
+      - semantic_net
 
-  # Serveur Jena Fuseki pour le raisonnement sémantique
   fuseki:
     image: stain/jena-fuseki:5.1.0
     container_name: fuseki
     ports:
       - "3030:3030"
     volumes:
-      - ./jena:/jena
+      - ./jena:/jena                    # ✅ fix path
       - ./ontology:/staging/ontology
       - ./data:/staging/data
       - ./rules:/staging/rules
@@ -41,8 +41,9 @@ services:
       - ADMIN_PASSWORD=admin123
       - JVM_ARGS=-Xmx2g
     command: ["sh", "-c", "/jena/run_jena.sh"]
+    networks:
+      - semantic_net
 
-  # Blockchain locale pour les preuves immuables
   ganache:
     image: trufflesuite/ganache-cli:latest
     container_name: ganache
@@ -55,6 +56,28 @@ services:
       --mnemonic "test test test test test test test test test test test junk"
       --chainId 1337
       --gasLimit 10000000
+    networks:
+      - semantic_net
+
+  ui:
+    build: ./ui
+    container_name: ui
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./reports:/app/reports
+      - ./proofs:/app/proofs
+    depends_on:
+      - organic_app
+      - fuseki                         # ✅ optional: UI might query it directly
+    environment:
+      - FUSEKI_URL=http://fuseki:3030  # ✅ make sure UI frontend/backend knows this
+    networks:
+      - semantic_net
 
 volumes:
   fuseki_data:
+
+networks:
+  semantic_net:
+    driver: bridge

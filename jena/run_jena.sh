@@ -58,17 +58,26 @@ done
 # Wait for server to be fully ready
 sleep 5
 
-# Load the ontology first
-echo 'Chargement de lontologie...'
-curl -X POST \
-    -H "Content-Type: application/rdf+xml" \
-    -T /staging/ontology/organic.owl \
-    http://localhost:3030/organic/data
+# Wait for Fuseki to be ready
+until curl -s http://localhost:3030/$/ping > /dev/null; do
+    echo "Waiting for Fuseki to start..."
+    sleep 1
+done
 
-echo 'Configuration des règles dinférence...'
-mkdir -p /tmp/inference
+echo "Fuseki is ready. Loading data and rules..."
 
-echo 'Configuration Fuseki/jena terminée!'
-echo 'Fuseki/jena disponible'
+# Create the dataset if it doesn't exist
+curl -X POST http://localhost:3030/$/datasets -H "Content-Type: application/x-www-form-urlencoded" --data "dbName=organic&dbType=tdb"
+
+# Load the ontology
+curl -X POST -H "Content-Type: text/turtle" --data-binary @/fuseki/databases/organic/farm_data.ttl http://localhost:3030/organic/data
+
+# Load the rules
+curl -X POST -H "Content-Type: text/plain" --data-binary @/jena-fuseki/organic_rules.rules http://localhost:3030/organic/data
+
+echo "Data and rules loaded successfully!"
+
+# Keep the container running
+tail -f /fuseki/logs/fuseki.log
 
 wait $FUSEKI_PID
