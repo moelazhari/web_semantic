@@ -1,10 +1,11 @@
 PREFIX : <http://example.org/organic#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT ?product ?category ?productionDate ?type ?sample ?chemical ?value ?maxAllowed ?chemType
+SELECT DISTINCT ?product ?category ?productionDate ?type
 WHERE {
     ?product rdf:type :Product .
+    FILTER(CONTAINS(LCASE(STR(?product)), LCASE("{{SEARCH_TERM}}")))
+    
     OPTIONAL { ?product :hasCategory ?category }
     OPTIONAL { ?product :hasProductionDate ?productionDate }
     
@@ -12,14 +13,6 @@ WHERE {
         { ?product rdf:type :OrganicProduct }
         UNION
         { ?product rdf:type :NonOrganicProduct }
-    }
-    
-    OPTIONAL {
-        ?product :hasSample ?sample .
-        ?sample :hasChemical ?chemical .
-        ?sample :hasValue ?value .
-        ?chemical :maxAllowedLevel ?maxAllowed .
-        ?chemical rdf:type ?chemType .
     }
     
     BIND(IF(EXISTS { ?product rdf:type :OrganicProduct }, "Organic", 

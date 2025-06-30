@@ -1,0 +1,16 @@
+PREFIX : <http://example.org/organic#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?chemical ?value ?maxAllowedLevel ?chemicalType
+WHERE {
+    ?product rdf:type :Product .
+    FILTER(STRENDS(STR(?product), "{{PRODUCT_ID}}"))
+    ?product :hasSample ?sample .
+    ?sample :hasChemical ?chemical .
+    ?sample :hasValue ?value .
+    
+    ?chemical rdf:type ?chemicalType .
+    OPTIONAL { ?chemical :maxAllowedLevel ?maxAllowedLevel }
+    
+    FILTER(?chemicalType IN (:ProhibitedChemical, :AllowedChemical))
+}

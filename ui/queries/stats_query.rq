@@ -1,0 +1,20 @@
+PREFIX : <http://example.org/organic#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT 
+    (COUNT(DISTINCT ?product) AS ?total_products)
+    (SUM(IF(?type = "Organic", 1, 0)) AS ?organic_products)
+    (SUM(IF(?type = "Non-Organic", 1, 0)) AS ?non_organic_products)
+WHERE {
+    ?product rdf:type :Product .
+    
+    {
+        { ?product rdf:type :OrganicProduct }
+        UNION
+        { ?product rdf:type :NonOrganicProduct }
+    }
+    
+    BIND(IF(EXISTS { ?product rdf:type :OrganicProduct }, "Organic", 
+         IF(EXISTS { ?product rdf:type :NonOrganicProduct }, "Non-Organic", "Unknown")) 
+         AS ?type)
+}

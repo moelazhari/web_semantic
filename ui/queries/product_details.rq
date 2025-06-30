@@ -1,0 +1,11 @@
+PREFIX : <http://example.org/organic#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?product ?category ?productionDate ?type
+WHERE {
+    ?product rdf:type :Product .
+    FILTER(STRENDS(STR(?product), "{{PRODUCT_ID}}"))
+    OPTIONAL { ?product :hasCategory ?category }
+    OPTIONAL { ?product :hasProductionDate ?productionDate }
+    OPTIONAL { ?product rdf:type ?type }
+}

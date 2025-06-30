@@ -232,11 +232,11 @@ def main():
         print("\n3. Sauvegarde des preuves...")
         signatures_file = save_proofs(proofs)
         
-        print(f"\nRésumé de génération:")
-        print(f"   Preuves générées: {len(proofs)}")
-        print(f"   Produits bio: {len([p for p in proofs.values() if 'OrganicProduct' in p['rdf_data']])}")
-        print(f"   Produits non-bio: {len([p for p in proofs.values() if 'NonOrganicProduct' in p['rdf_data']])}")
-        print(f"   Fichier signatures: {signatures_file}")
+        # print(f"\nRésumé de génération:")
+        # print(f"   Preuves générées: {len(proofs)}")
+        # print(f"   Produits bio: {len([p for p in proofs.values() if 'OrganicProduct' in p['rdf_data']])}")
+        # print(f"   Produits non-bio: {len([p for p in proofs.values() if 'NonOrganicProduct' in p['rdf_data']])}")
+        # print(f"   Fichier signatures: {signatures_file}")
         
         print("\nGénération des preuves cryptographiques terminée!")
         print("Prêt pour soumission blockchain")
