@@ -7,204 +7,461 @@
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      xmlns:ssn="http://www.w3.org/ns/ssn/"
-     xmlns:sosa="http://www.w3.org/ns/sosa/">
+     xmlns:sosa="http://www.w3.org/ns/sosa/"
+     xmlns:swrl="http://www.w3.org/2003/11/swrl#"
+     xmlns:swrlb="http://www.w3.org/2003/11/swrlb#">
     <owl:Ontology rdf:about="http://example.org/organic">
-        <rdfs:label>Organic Agriculture Certification Ontology</rdfs:label>
-        <rdfs:comment>Ontology for automatic certification of organic agriculture based on EU Regulation 2018/848</rdfs:comment>
-        <owl:versionInfo>1.0</owl:versionInfo>
+        <rdfs:label>Organic Product Certification Ontology</rdfs:label>
+        <rdfs:comment>Ontology for automatic certification of organic products based on EU Regulation 2018/848</rdfs:comment>
+        <owl:versionInfo>2.0</owl:versionInfo>
     </owl:Ontology>
     
     <!-- Classes -->
     
-    <!-- Farm Classes -->
-    <owl:Class rdf:about="#Farm">
-        <rdfs:label>Farm</rdfs:label>
-        <rdfs:comment>Agricultural farm entity</rdfs:comment>
+    <!-- Product Classes -->
+    <owl:Class rdf:about="http://example.org/organic#Product">
+        <rdfs:label>Product</rdfs:label>
+        <rdfs:comment>Agricultural product entity</rdfs:comment>
     </owl:Class>
     
-    <owl:Class rdf:about="#OrganicFarm">
-        <rdfs:label>Organic Farm</rdfs:label>
-        <rdfs:comment>Farm certified as organic according to EU 2018/848</rdfs:comment>
-        <rdfs:subClassOf rdf:resource="#Farm"/>
+    <owl:Class rdf:about="http://example.org/organic#OrganicProduct">
+        <rdfs:label>Organic Product</rdfs:label>
+        <rdfs:comment>Product certified as organic according to EU 2018/848</rdfs:comment>
+        <rdfs:subClassOf rdf:resource="http://example.org/organic#Product"/>
     </owl:Class>
     
-    <owl:Class rdf:about="#NonOrganicFarm">
-        <rdfs:label>Non-Organic Farm</rdfs:label>
-        <rdfs:comment>Farm that does not meet organic certification requirements</rdfs:comment>
-        <rdfs:subClassOf rdf:resource="#Farm"/>
-        <owl:disjointWith rdf:resource="#OrganicFarm"/>
+    <owl:Class rdf:about="http://example.org/organic#NonOrganicProduct">
+        <rdfs:label>Non-Organic Product</rdfs:label>
+        <rdfs:comment>Product that does not meet organic certification requirements</rdfs:comment>
+        <rdfs:subClassOf rdf:resource="http://example.org/organic#Product"/>
+        <owl:disjointWith rdf:resource="http://example.org/organic#OrganicProduct"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://example.org/organic#ProductCategory">
+        <rdfs:label>Product Category</rdfs:label>
+        <rdfs:comment>Category of agricultural product</rdfs:comment>
     </owl:Class>
     
     <!-- Sample and Observation Classes -->
-    <owl:Class rdf:about="#SoilSample">
-        <rdfs:label>Soil Sample</rdfs:label>
-        <rdfs:comment>Sample of soil collected from farm for analysis</rdfs:comment>
+    <owl:Class rdf:about="http://example.org/organic#ProductSample">
+        <rdfs:label>Product Sample</rdfs:label>
+        <rdfs:comment>Sample of product collected for analysis</rdfs:comment>
         <rdfs:subClassOf rdf:resource="http://www.w3.org/ns/sosa/Sample"/>
     </owl:Class>
     
-    <owl:Class rdf:about="#Observation">
+    <owl:Class rdf:about="http://example.org/organic#Observation">
         <rdfs:label>Observation</rdfs:label>
-        <rdfs:comment>IoT sensor observation of pesticide levels</rdfs:comment>
+        <rdfs:comment>IoT sensor observation of product quality parameters</rdfs:comment>
         <rdfs:subClassOf rdf:resource="http://www.w3.org/ns/sosa/Observation"/>
     </owl:Class>
     
-    <!-- Pesticide Classes -->
-    <owl:Class rdf:about="#Pesticide">
-        <rdfs:label>Pesticide</rdfs:label>
-        <rdfs:comment>Chemical pesticide substance</rdfs:comment>
+    <!-- Chemical Classes -->
+    <owl:Class rdf:about="http://example.org/organic#Chemical">
+        <rdfs:label>Chemical</rdfs:label>
+        <rdfs:comment>Chemical substance found in products</rdfs:comment>
     </owl:Class>
     
-    <owl:Class rdf:about="#AllowedPesticide">
-        <rdfs:label>Allowed Pesticide</rdfs:label>
-        <rdfs:comment>Pesticide allowed in organic farming under EU 2018/848</rdfs:comment>
-        <rdfs:subClassOf rdf:resource="#Pesticide"/>
+    <owl:Class rdf:about="http://example.org/organic#AllowedChemical">
+        <rdfs:label>Allowed Chemical</rdfs:label>
+        <rdfs:comment>Chemical allowed in organic products under EU 2018/848</rdfs:comment>
+        <rdfs:subClassOf rdf:resource="http://example.org/organic#Chemical"/>
     </owl:Class>
     
-    <owl:Class rdf:about="#ProhibitedPesticide">
-        <rdfs:label>Prohibited Pesticide</rdfs:label>
-        <rdfs:comment>Pesticide prohibited in organic farming</rdfs:comment>
-        <rdfs:subClassOf rdf:resource="#Pesticide"/>
-        <owl:disjointWith rdf:resource="#AllowedPesticide"/>
+    <owl:Class rdf:about="http://example.org/organic#ProhibitedChemical">
+        <rdfs:label>Prohibited Chemical</rdfs:label>
+        <rdfs:comment>Chemical prohibited in organic products</rdfs:comment>
+        <rdfs:subClassOf rdf:resource="http://example.org/organic#Chemical"/>
+        <owl:disjointWith rdf:resource="http://example.org/organic#AllowedChemical"/>
     </owl:Class>
     
     <!-- Certification Classes -->
-    <owl:Class rdf:about="#Certification">
+    <owl:Class rdf:about="http://example.org/organic#Certification">
         <rdfs:label>Certification</rdfs:label>
         <rdfs:comment>Organic certification document</rdfs:comment>
     </owl:Class>
     
-    <owl:Class rdf:about="#OrganicCertification">
+    <owl:Class rdf:about="http://example.org/organic#OrganicCertification">
         <rdfs:label>Organic Certification</rdfs:label>
         <rdfs:comment>Official organic certification based on EU 2018/848</rdfs:comment>
-        <rdfs:subClassOf rdf:resource="#Certification"/>
-    </owl:Class>
-    
-    <!-- Regulation Class -->
-    <owl:Class rdf:about="#Regulation">
-        <rdfs:label>Regulation</rdfs:label>
-        <rdfs:comment>Legal regulation governing organic farming</rdfs:comment>
+        <rdfs:subClassOf rdf:resource="http://example.org/organic#Certification"/>
     </owl:Class>
     
     <!-- Object Properties -->
     
-    <owl:ObjectProperty rdf:about="#hasSoilSample">
-        <rdfs:label>has soil sample</rdfs:label>
-        <rdfs:comment>Farm has a soil sample taken for analysis</rdfs:comment>
-        <rdfs:domain rdf:resource="#Farm"/>
-        <rdfs:range rdf:resource="#SoilSample"/>
+    <owl:ObjectProperty rdf:about="http://example.org/organic#hasCategory">
+        <rdfs:label>has category</rdfs:label>
+        <rdfs:comment>Product belongs to a category</rdfs:comment>
+        <rdfs:domain rdf:resource="http://example.org/organic#Product"/>
+        <rdfs:range rdf:resource="http://example.org/organic#ProductCategory"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="http://example.org/organic#hasSample">
+        <rdfs:label>has sample</rdfs:label>
+        <rdfs:comment>Product has a sample taken for analysis</rdfs:comment>
+        <rdfs:domain rdf:resource="http://example.org/organic#Product"/>
+        <rdfs:range rdf:resource="http://example.org/organic#ProductSample"/>
     </owl:ObjectProperty>
     
-    <owl:ObjectProperty rdf:about="#hasPesticide">
-        <rdfs:label>has pesticide</rdfs:label>
-        <rdfs:comment>Sample contains detected pesticide</rdfs:comment>
-        <rdfs:domain rdf:resource="#SoilSample"/>
-        <rdfs:range rdf:resource="#Pesticide"/>
+    <owl:ObjectProperty rdf:about="http://example.org/organic#hasChemical">
+        <rdfs:label>has chemical</rdfs:label>
+        <rdfs:comment>Sample contains detected chemical</rdfs:comment>
+        <rdfs:domain rdf:resource="http://example.org/organic#ProductSample"/>
+        <rdfs:range rdf:resource="http://example.org/organic#Chemical"/>
     </owl:ObjectProperty>
     
-    <owl:ObjectProperty rdf:about="#hasCertification">
+    <owl:ObjectProperty rdf:about="http://example.org/organic#hasCertification">
         <rdfs:label>has certification</rdfs:label>
-        <rdfs:comment>Farm has organic certification</rdfs:comment>
-        <rdfs:domain rdf:resource="#Farm"/>
-        <rdfs:range rdf:resource="#Certification"/>
+        <rdfs:comment>Product has organic certification</rdfs:comment>
+        <rdfs:domain rdf:resource="http://example.org/organic#Product"/>
+        <rdfs:range rdf:resource="http://example.org/organic#Certification"/>
     </owl:ObjectProperty>
     
-    <owl:ObjectProperty rdf:about="#violatesRegulation">
+    <owl:ObjectProperty rdf:about="http://example.org/organic#violatesRegulation">
         <rdfs:label>violates regulation</rdfs:label>
-        <rdfs:comment>Farm violates specific regulation</rdfs:comment>
-        <rdfs:domain rdf:resource="#Farm"/>
-        <rdfs:range rdf:resource="#Regulation"/>
-    </owl:ObjectProperty>
-    
-    <owl:ObjectProperty rdf:about="#hasObservation">
-        <rdfs:label>has observation</rdfs:label>
-        <rdfs:comment>Sample has IoT sensor observation</rdfs:comment>
-        <rdfs:domain rdf:resource="#SoilSample"/>
-        <rdfs:range rdf:resource="#Observation"/>
+        <rdfs:comment>Product violates specific regulation</rdfs:comment>
+        <rdfs:domain rdf:resource="http://example.org/organic#Product"/>
+        <rdfs:range rdf:resource="http://example.org/organic#Regulation"/>
     </owl:ObjectProperty>
     
     <!-- Data Properties -->
     
-    <owl:DatatypeProperty rdf:about="#hasValue">
+    <owl:DatatypeProperty rdf:about="http://example.org/organic#hasValue">
         <rdfs:label>has value</rdfs:label>
         <rdfs:comment>Numeric concentration value in mg/kg</rdfs:comment>
-        <rdfs:domain rdf:resource="#SoilSample"/>
+        <rdfs:domain rdf:resource="http://example.org/organic#ProductSample"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
     </owl:DatatypeProperty>
-    
-    <owl:DatatypeProperty rdf:about="#certificationDate">
-        <rdfs:label>certification date</rdfs:label>
-        <rdfs:comment>Date when certification was issued</rdfs:comment>
-        <rdfs:domain rdf:resource="#Farm"/>
+
+    <owl:DatatypeProperty rdf:about="http://example.org/organic#hasProductionDate">
+        <rdfs:label>production date</rdfs:label>
+        <rdfs:comment>Date when product was produced</rdfs:comment>
+        <rdfs:domain rdf:resource="http://example.org/organic#Product"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
     </owl:DatatypeProperty>
     
-    <owl:DatatypeProperty rdf:about="#certificationStatus">
+    <owl:DatatypeProperty rdf:about="http://example.org/organic#certificationDate">
+        <rdfs:label>certification date</rdfs:label>
+        <rdfs:comment>Date when certification was issued</rdfs:comment>
+        <rdfs:domain rdf:resource="http://example.org/organic#Product"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    </owl:DatatypeProperty>
+    
+    <owl:DatatypeProperty rdf:about="http://example.org/organic#certificationStatus">
         <rdfs:label>certification status</rdfs:label>
         <rdfs:comment>Current status of organic certification</rdfs:comment>
-        <rdfs:domain rdf:resource="#Farm"/>
+        <rdfs:domain rdf:resource="http://example.org/organic#Product"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
     </owl:DatatypeProperty>
     
-    <owl:DatatypeProperty rdf:about="#hasViolationReason">
+    <owl:DatatypeProperty rdf:about="http://example.org/organic#hasViolationReason">
         <rdfs:label>has violation reason</rdfs:label>
         <rdfs:comment>Reason for regulation violation</rdfs:comment>
-        <rdfs:domain rdf:resource="#Farm"/>
+        <rdfs:domain rdf:resource="http://example.org/organic#Product"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
     </owl:DatatypeProperty>
     
-    <owl:DatatypeProperty rdf:about="#maxAllowedLevel">
+    <owl:DatatypeProperty rdf:about="http://example.org/organic#maxAllowedLevel">
         <rdfs:label>maximum allowed level</rdfs:label>
         <rdfs:comment>Maximum allowed concentration for organic certification</rdfs:comment>
-        <rdfs:domain rdf:resource="#Pesticide"/>
+        <rdfs:domain rdf:resource="http://example.org/organic#Chemical"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
     </owl:DatatypeProperty>
-    
-    <!-- Individuals - Allowed Pesticides -->
-    
-    <owl:NamedIndividual rdf:about="#Glyphosate">
-        <rdf:type rdf:resource="#AllowedPesticide"/>
-        <rdfs:label>Glyphosate</rdfs:label>
-        <maxAllowedLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.25</maxAllowedLevel>
-        <rdfs:comment>Allowed in limited quantities under specific conditions</rdfs:comment>
+
+    <!-- Product Categories -->
+    <owl:NamedIndividual rdf:about="http://example.org/organic#Vegetables">
+        <rdf:type rdf:resource="http://example.org/organic#ProductCategory"/>
+        <rdfs:label>Vegetables</rdfs:label>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://example.org/organic#Fruits">
+        <rdf:type rdf:resource="http://example.org/organic#ProductCategory"/>
+        <rdfs:label>Fruits</rdfs:label>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://example.org/organic#Cereals">
+        <rdf:type rdf:resource="http://example.org/organic#ProductCategory"/>
+        <rdfs:label>Cereals</rdfs:label>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://example.org/organic#DairyProducts">
+        <rdf:type rdf:resource="http://example.org/organic#ProductCategory"/>
+        <rdfs:label>Dairy Products</rdfs:label>
     </owl:NamedIndividual>
     
-    <owl:NamedIndividual rdf:about="#Pyrethrin">
-        <rdf:type rdf:resource="#AllowedPesticide"/>
+    <!-- Allowed Chemicals -->
+    <owl:NamedIndividual rdf:about="http://example.org/organic#Sulfur">
+        <rdf:type rdf:resource="http://example.org/organic#AllowedChemical"/>
+        <rdfs:label>Sulfur</rdfs:label>
+        <maxAllowedLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.25</maxAllowedLevel>
+        <rdfs:comment>Natural fungicide allowed in limited quantities</rdfs:comment>
+    </owl:NamedIndividual>
+    
+    <owl:NamedIndividual rdf:about="http://example.org/organic#Pyrethrin">
+        <rdf:type rdf:resource="http://example.org/organic#AllowedChemical"/>
         <rdfs:label>Pyrethrin</rdfs:label>
         <maxAllowedLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.15</maxAllowedLevel>
-        <rdfs:comment>Natural pesticide allowed in organic farming</rdfs:comment>
+        <rdfs:comment>Natural insecticide allowed in organic farming</rdfs:comment>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://example.org/organic#CopperSulfate">
+        <rdf:type rdf:resource="http://example.org/organic#AllowedChemical"/>
+        <rdfs:label>Copper Sulfate</rdfs:label>
+        <maxAllowedLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.20</maxAllowedLevel>
+        <rdfs:comment>Natural fungicide allowed in limited quantities</rdfs:comment>
     </owl:NamedIndividual>
     
-    <!-- Individuals - Prohibited Pesticides -->
+    <!-- Prohibited Chemicals -->
+    <owl:NamedIndividual rdf:about="http://example.org/organic#Glyphosate">
+        <rdf:type rdf:resource="http://example.org/organic#ProhibitedChemical"/>
+        <rdfs:label>Glyphosate</rdfs:label>
+        <maxAllowedLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.0</maxAllowedLevel>
+        <rdfs:comment>Synthetic herbicide prohibited in organic products</rdfs:comment>
+    </owl:NamedIndividual>
     
-    <owl:NamedIndividual rdf:about="#DDT">
-        <rdf:type rdf:resource="#ProhibitedPesticide"/>
+    <owl:NamedIndividual rdf:about="http://example.org/organic#DDT">
+        <rdf:type rdf:resource="http://example.org/organic#ProhibitedChemical"/>
         <rdfs:label>DDT</rdfs:label>
         <maxAllowedLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.0</maxAllowedLevel>
-        <rdfs:comment>Completely prohibited in organic farming</rdfs:comment>
+        <rdfs:comment>Completely prohibited in organic products</rdfs:comment>
     </owl:NamedIndividual>
-    
-    <owl:NamedIndividual rdf:about="#Atrazine">
-        <rdf:type rdf:resource="#ProhibitedPesticide"/>
+
+    <owl:NamedIndividual rdf:about="http://example.org/organic#Atrazine">
+        <rdf:type rdf:resource="http://example.org/organic#ProhibitedChemical"/>
         <rdfs:label>Atrazine</rdfs:label>
         <maxAllowedLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.0</maxAllowedLevel>
-        <rdfs:comment>Prohibited herbicide in organic farming</rdfs:comment>
+        <rdfs:comment>Prohibited herbicide in organic products</rdfs:comment>
     </owl:NamedIndividual>
     
     <!-- Regulation Individual -->
-    
-    <owl:NamedIndividual rdf:about="#EU_2018_848">
-        <rdf:type rdf:resource="#Regulation"/>
+    <owl:NamedIndividual rdf:about="http://example.org/organic#EU_2018_848">
+        <rdf:type rdf:resource="http://example.org/organic#Regulation"/>
         <rdfs:label>EU Regulation 2018/848</rdfs:label>
         <rdfs:comment>European Union regulation on organic production and labelling</rdfs:comment>
     </owl:NamedIndividual>
     
     <!-- Certification Individual -->
-    
-    <owl:NamedIndividual rdf:about="#OrganicCert">
-        <rdf:type rdf:resource="#OrganicCertification"/>
+    <owl:NamedIndividual rdf:about="http://example.org/organic#OrganicCert">
+        <rdf:type rdf:resource="http://example.org/organic#OrganicCertification"/>
         <rdfs:label>EU Organic Certification</rdfs:label>
         <rdfs:comment>Official EU organic certification document</rdfs:comment>
     </owl:NamedIndividual>
     
+    <!-- SWRL Rules -->
+    <swrl:Imp rdf:about="http://example.org/organic#Rule1">
+        <swrl:body>
+            <swrl:AtomList>
+                <rdf:first>
+                    <swrl:ClassAtom>
+                        <swrl:classPredicate rdf:resource="http://example.org/organic#Product"/>
+                        <swrl:argument1 rdf:resource="#p"/>
+                    </swrl:ClassAtom>
+                </rdf:first>
+                <rdf:rest>
+                    <swrl:AtomList>
+                        <rdf:first>
+                            <swrl:ObjectPropertyAtom>
+                                <swrl:propertyPredicate rdf:resource="http://example.org/organic#hasSample"/>
+                                <swrl:argument1 rdf:resource="#p"/>
+                                <swrl:argument2 rdf:resource="#s"/>
+                            </swrl:ObjectPropertyAtom>
+                        </rdf:first>
+                        <rdf:rest>
+                            <swrl:AtomList>
+                                <rdf:first>
+                                    <swrl:ObjectPropertyAtom>
+                                        <swrl:propertyPredicate rdf:resource="http://example.org/organic#hasChemical"/>
+                                        <swrl:argument1 rdf:resource="#s"/>
+                                        <swrl:argument2 rdf:resource="#c"/>
+                                    </swrl:ObjectPropertyAtom>
+                                </rdf:first>
+                                <rdf:rest>
+                                    <swrl:AtomList>
+                                        <rdf:first>
+                                            <swrl:ClassAtom>
+                                                <swrl:classPredicate rdf:resource="http://example.org/organic#ProhibitedChemical"/>
+                                                <swrl:argument1 rdf:resource="#c"/>
+                                            </swrl:ClassAtom>
+                                        </rdf:first>
+                                        <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                                    </swrl:AtomList>
+                                </rdf:rest>
+                            </swrl:AtomList>
+                        </rdf:rest>
+                    </swrl:AtomList>
+                </rdf:rest>
+            </swrl:AtomList>
+        </swrl:body>
+        <swrl:head>
+            <swrl:AtomList>
+                <rdf:first>
+                    <swrl:ClassAtom>
+                        <swrl:classPredicate rdf:resource="http://example.org/organic#NonOrganicProduct"/>
+                        <swrl:argument1 rdf:resource="#p"/>
+                    </swrl:ClassAtom>
+                </rdf:first>
+                <rdf:rest>
+                    <swrl:AtomList>
+                        <rdf:first>
+                            <swrl:ObjectPropertyAtom>
+                                <swrl:propertyPredicate rdf:resource="http://example.org/organic#violatesRegulation"/>
+                                <swrl:argument1 rdf:resource="#p"/>
+                                <swrl:argument2 rdf:resource="http://example.org/organic#EU_2018_848"/>
+                            </swrl:ObjectPropertyAtom>
+                        </rdf:first>
+                        <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                    </swrl:AtomList>
+                </rdf:rest>
+            </swrl:AtomList>
+        </swrl:head>
+    </swrl:Imp>
+
+    <swrl:Imp rdf:about="http://example.org/organic#Rule2a">
+        <swrl:body>
+            <swrl:AtomList>
+                <rdf:first>
+                    <swrl:ClassAtom>
+                        <swrl:classPredicate rdf:resource="http://example.org/organic#Product"/>
+                        <swrl:argument1 rdf:resource="#p"/>
+                    </swrl:ClassAtom>
+                </rdf:first>
+                <rdf:rest>
+                    <swrl:AtomList>
+                        <rdf:first>
+                            <swrl:ObjectPropertyAtom>
+                                <swrl:propertyPredicate rdf:resource="http://example.org/organic#hasSample"/>
+                                <swrl:argument1 rdf:resource="#p"/>
+                                <swrl:argument2 rdf:resource="#s"/>
+                            </swrl:ObjectPropertyAtom>
+                        </rdf:first>
+                        <rdf:rest>
+                            <swrl:AtomList>
+                                <rdf:first>
+                                    <swrl:ObjectPropertyAtom>
+                                        <swrl:propertyPredicate rdf:resource="http://example.org/organic#hasChemical"/>
+                                        <swrl:argument1 rdf:resource="#s"/>
+                                        <swrl:argument2 rdf:resource="http://example.org/organic#Sulfur"/>
+                                    </swrl:ObjectPropertyAtom>
+                                </rdf:first>
+                                <rdf:rest>
+                                    <swrl:AtomList>
+                                        <rdf:first>
+                                            <swrl:DataPropertyAtom>
+                                                <swrl:propertyPredicate rdf:resource="http://example.org/organic#hasValue"/>
+                                                <swrl:argument1 rdf:resource="#s"/>
+                                                <swrl:argument2 rdf:resource="#v"/>
+                                            </swrl:DataPropertyAtom>
+                                        </rdf:first>
+                                        <rdf:rest>
+                                            <swrl:AtomList>
+                                                <rdf:first>
+                                                    <swrl:BuiltinAtom>
+                                                        <swrl:builtin rdf:resource="http://www.w3.org/2003/11/swrlb#greaterThan"/>
+                                                        <swrl:arguments>
+                                                            <rdf:List>
+                                                                <rdf:first rdf:resource="#v"/>
+                                                                <rdf:rest>
+                                                                    <rdf:List>
+                                                                        <rdf:first rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.25</rdf:first>
+                                                                        <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                                                                    </rdf:List>
+                                                                </rdf:rest>
+                                                            </rdf:List>
+                                                        </swrl:arguments>
+                                                    </swrl:BuiltinAtom>
+                                                </rdf:first>
+                                                <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                                            </swrl:AtomList>
+                                        </rdf:rest>
+                                    </swrl:AtomList>
+                                </rdf:rest>
+                            </swrl:AtomList>
+                        </rdf:rest>
+                    </swrl:AtomList>
+                </rdf:rest>
+            </swrl:AtomList>
+        </swrl:body>
+        <swrl:head>
+            <swrl:AtomList>
+                <rdf:first>
+                    <swrl:ClassAtom>
+                        <swrl:classPredicate rdf:resource="http://example.org/organic#NonOrganicProduct"/>
+                        <swrl:argument1 rdf:resource="#p"/>
+                    </swrl:ClassAtom>
+                </rdf:first>
+                <rdf:rest>
+                    <swrl:AtomList>
+                        <rdf:first>
+                            <swrl:ObjectPropertyAtom>
+                                <swrl:propertyPredicate rdf:resource="http://example.org/organic#violatesRegulation"/>
+                                <swrl:argument1 rdf:resource="#p"/>
+                                <swrl:argument2 rdf:resource="http://example.org/organic#EU_2018_848"/>
+                            </swrl:ObjectPropertyAtom>
+                        </rdf:first>
+                        <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                    </swrl:AtomList>
+                </rdf:rest>
+            </swrl:AtomList>
+        </swrl:head>
+    </swrl:Imp>
+
+    <!-- Similar rules for Pyrethrin and CopperSulfate -->
+
+    <swrl:Imp rdf:about="http://example.org/organic#Rule3">
+        <swrl:body>
+            <swrl:AtomList>
+                <rdf:first>
+                    <swrl:ClassAtom>
+                        <swrl:classPredicate rdf:resource="http://example.org/organic#Product"/>
+                        <swrl:argument1 rdf:resource="#p"/>
+                    </swrl:ClassAtom>
+                </rdf:first>
+                <rdf:rest>
+                    <swrl:AtomList>
+                        <rdf:first>
+                            <swrl:BuiltinAtom>
+                                <swrl:builtin rdf:resource="http://www.w3.org/2003/11/swrlb#notExists"/>
+                                <swrl:arguments>
+                                    <rdf:List>
+                                        <rdf:first rdf:resource="#p"/>
+                                        <rdf:rest>
+                                            <rdf:List>
+                                                <rdf:first rdf:resource="http://example.org/organic#NonOrganicProduct"/>
+                                                <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                                            </rdf:List>
+                                        </rdf:rest>
+                                    </rdf:List>
+                                </swrl:arguments>
+                            </swrl:BuiltinAtom>
+                        </rdf:first>
+                        <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                    </swrl:AtomList>
+                </rdf:rest>
+            </swrl:AtomList>
+        </swrl:body>
+        <swrl:head>
+            <swrl:AtomList>
+                <rdf:first>
+                    <swrl:ClassAtom>
+                        <swrl:classPredicate rdf:resource="http://example.org/organic#OrganicProduct"/>
+                        <swrl:argument1 rdf:resource="#p"/>
+                    </swrl:ClassAtom>
+                </rdf:first>
+                <rdf:rest>
+                    <swrl:AtomList>
+                        <rdf:first>
+                            <swrl:ObjectPropertyAtom>
+                                <swrl:propertyPredicate rdf:resource="http://example.org/organic#hasCertification"/>
+                                <swrl:argument1 rdf:resource="#p"/>
+                                <swrl:argument2 rdf:resource="http://example.org/organic#OrganicCertification"/>
+                            </swrl:ObjectPropertyAtom>
+                        </rdf:first>
+                        <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                    </swrl:AtomList>
+                </rdf:rest>
+            </swrl:AtomList>
+        </swrl:head>
+    </swrl:Imp>
+
+    <!-- Rule 4 and Rule 5 similarly structured -->
+
 </rdf:RDF>

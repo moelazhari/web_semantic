@@ -1,0 +1,14 @@
+{
+  "product_id": "Potatoes_Batch1",
+  "timestamp": "2025-06-30T03:45:53.359819",
+  "rdf_hash": "72ed5367910cc7b6c97f16599713fd0b1d8ad626cc5ee0aece5894ddf34e7c11",
+  "regulation": "EU_2018_848",
+  "proof_type": "ORGANIC_CERTIFICATION",
+  "rdf_data": "@prefix organic: <http://example.org/organic#> .\n\norganic:Potatoes_Batch1 a organic:OrganicProduct ;\n    organic:certificationDate <http://example.org/organic#2025-06-30T03:45:53.359304> ;\n    organic:certificationStatus organic:CERTIFIED ;\n    organic:hasCategory organic:Vegetables ;\n    organic:hasSample organic:Sample_Potatoes_Batch1_3,\n        organic:Sample_Potatoes_Batch1_6 ;\n    organic:regulation organic:EU_2018_848 .\n\norganic:Sample_Potatoes_Batch1_3 organic:hasChemical organic:Glyphosate ;\n    organic:hasValue organic:0.04 .\n\norganic:Sample_Potatoes_Batch1_6 organic:hasChemical organic:Glyphosate ;\n    organic:hasValue organic:0.04 .\n\n",
+  "signature": {
+    "r": 92680439415929144101784789726133383116326100000019506509875032003012847423962,
+    "s": 42802465259664795120274300091275875528374823514284400467169937739446859842505,
+    "v": 28,
+    "signer_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+  }
+}

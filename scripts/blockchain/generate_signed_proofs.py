@@ -11,6 +11,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON, RDF
 from rdflib import Graph, Namespace, URIRef, RDF as RDF_NS
 from web3 import Web3
 from eth_account import Account
+from eth_account.messages import encode_defunct
 from dotenv import load_dotenv
 from query_loader import load_query
 
@@ -33,8 +34,8 @@ def setup_sparql():
     sparql.setReturnFormat(JSON)
     return sparql
 
-def get_farm_certification_data():
-    """Retrieve farm certification data from Fuseki"""
+def get_product_certification_data():
+    """Retrieve product certification data from Fuseki"""
     sparql = setup_sparql()
     
     # Load query from file
@@ -43,68 +44,72 @@ def get_farm_certification_data():
     sparql.setQuery(query)
     results = sparql.query().convert()
     
-    farms_data = {}
+    products_data = {}
     for result in results["results"]["bindings"]:
-        farm_uri = result["farm"]["value"]
-        farm_name = farm_uri.split("#")[-1]
+        product_uri = result["product"]["value"]
+        product_name = product_uri.split("#")[-1]
         
-        if farm_name not in farms_data:
-            farms_data[farm_name] = {
-                "farm_uri": farm_uri,
+        if product_name not in products_data:
+            products_data[product_name] = {
+                "product_uri": product_uri,
                 "samples": [],
-                "farm_type": "Inconnu",
-                "certification_status": "EN_ATTENTE"
+                "product_type": "Inconnu",
+                "certification_status": "EN_ATTENTE",
+                "category": result["category"]["value"].split("#")[-1]
             }
         
         sample_data = {
             "sample_uri": result["sample"]["value"],
-            "pesticide": result["pesticide"]["value"].split("#")[-1],
+            "chemical": result["chemical"]["value"].split("#")[-1],
             "concentration": float(result["value"]["value"])
         }
-        farms_data[farm_name]["samples"].append(sample_data)
+        products_data[product_name]["samples"].append(sample_data)
         
-        if "farmType" in result:
-            farm_type = result["farmType"]["value"].split("#")[-1]
-            farms_data[farm_name]["farm_type"] = farm_type
+        if "productType" in result:
+            product_type = result["productType"]["value"].split("#")[-1]
+            products_data[product_name]["product_type"] = product_type
             
         if "certStatus" in result:
-            farms_data[farm_name]["certification_status"] = result["certStatus"]["value"]
+            products_data[product_name]["certification_status"] = result["certStatus"]["value"]
     
-    return farms_data
+    return products_data
 
-def create_rdf_proof_for_farm(farm_name, farm_data):
-    """Create RDF proof for a specific farm"""
+def create_rdf_proof_for_product(product_name, product_data):
+    """Create RDF proof for a specific product"""
     g = Graph()
     g.bind("organic", ns)
     
-    farm_uri = ns[farm_name]
+    product_uri = ns[product_name]
+    category_uri = ns[product_data["category"]]
     
-    if farm_data["farm_type"] == "OrganicFarm":
-        g.add((farm_uri, RDF_NS.type, ns.OrganicFarm))
-        g.add((farm_uri, ns.certificationStatus, ns.CERTIFIED))
-    elif farm_data["farm_type"] == "NonOrganicFarm":
-        g.add((farm_uri, RDF_NS.type, ns.NonOrganicFarm))
-        g.add((farm_uri, ns.certificationStatus, ns.REJECTED))
+    g.add((product_uri, ns.hasCategory, category_uri))
     
-    for sample in farm_data["samples"]:
-        sample_uri = ns[f"Sample_{farm_name}_{len(g)}"]
-        g.add((farm_uri, ns.hasSoilSample, sample_uri))
-        g.add((sample_uri, ns.hasPesticide, ns[sample["pesticide"]]))
+    if product_data["product_type"] == "OrganicProduct":
+        g.add((product_uri, RDF_NS.type, ns.OrganicProduct))
+        g.add((product_uri, ns.certificationStatus, ns.CERTIFIED))
+    elif product_data["product_type"] == "NonOrganicProduct":
+        g.add((product_uri, RDF_NS.type, ns.NonOrganicProduct))
+        g.add((product_uri, ns.certificationStatus, ns.REJECTED))
+    
+    for sample in product_data["samples"]:
+        sample_uri = ns[f"Sample_{product_name}_{len(g)}"]
+        g.add((product_uri, ns.hasSample, sample_uri))
+        g.add((sample_uri, ns.hasChemical, ns[sample["chemical"]]))
         g.add((sample_uri, ns.hasValue, ns[str(sample["concentration"])]))
     
-    g.add((farm_uri, ns.certificationDate, ns[datetime.now().isoformat()]))
-    g.add((farm_uri, ns.regulation, ns["EU_2018_848"]))
+    g.add((product_uri, ns.certificationDate, ns[datetime.now().isoformat()]))
+    g.add((product_uri, ns.regulation, ns["EU_2018_848"]))
     
     rdf_data = g.serialize(format='turtle')
     return rdf_data
 
-def generate_cryptographic_proof(farm_name, rdf_data):
+def generate_cryptographic_proof(product_name, rdf_data):
     """Generate cryptographic proof for RDF data"""
     
     rdf_hash = hashlib.sha256(rdf_data.encode('utf-8')).hexdigest()
     
     proof = {
-        "farm_id": farm_name,
+        "product_id": product_name,
         "timestamp": datetime.now().isoformat(),
         "rdf_hash": rdf_hash,
         "regulation": "EU_2018_848",
@@ -116,37 +121,76 @@ def generate_cryptographic_proof(farm_name, rdf_data):
     if private_key:
         try:
             message = json.dumps(proof, sort_keys=True)
-            message_hash = hashlib.sha256(message.encode()).hexdigest()
             
+            # Create account from private key
             account = Account.from_key(private_key)
-            signature = account.signHash(message_hash)
+            
+            # Sign the message
+            signed_message = Account.sign_message(
+                encode_defunct(text=message),
+                private_key=private_key
+            )
             
             proof["signature"] = {
-                "r": signature.r,
-                "s": signature.s,
-                "v": signature.v,
+                "r": signed_message.r,
+                "s": signed_message.s,
+                "v": signed_message.v,
                 "signer_address": account.address
             }
             
-            print(f"   Preuve cryptographique signée pour {farm_name}")
+            print(f"   Preuve cryptographique signée pour {product_name}")
             
         except Exception as e:
-            print(f"   Attention: Impossible de signer la preuve pour {farm_name}: {e}")
+            print(f"   Attention: Impossible de signer la preuve pour {product_name}: {e}")
     
     return proof
+
+def verify_proof_integrity(proof):
+    """Verify the integrity of a cryptographic proof"""
+    try:
+        # Verify RDF data hash
+        rdf_hash = hashlib.sha256(proof["rdf_data"].encode('utf-8')).hexdigest()
+        if rdf_hash != proof["rdf_hash"]:
+            print(f"   Erreur: Hash RDF invalide pour {proof['product_id']}")
+            return False
+        
+        # Verify signature if present
+        if "signature" in proof:
+            message = json.dumps({k: v for k, v in proof.items() if k != "signature"}, sort_keys=True)
+            
+            signature = proof["signature"]
+            v, r, s = signature["v"], signature["r"], signature["s"]
+            
+            # Create the Ethereum-specific message
+            message_hash = encode_defunct(text=message)
+            
+            # Recover the signer's address
+            signer = Account.recover_message(message_hash, vrs=(v, r, s))
+            
+            if signer.lower() != signature["signer_address"].lower():
+                print(f"   Erreur: Signature invalide pour {proof['product_id']}")
+                return False
+            
+            print(f"   Preuve générée et vérifiée pour {proof['product_id']}")
+        
+        return True
+        
+    except Exception as e:
+        print(f"   Erreur de vérification pour {proof['product_id']}: {e}")
+        return False
 
 def save_proofs(proofs):
     """Save all proofs to files"""
     
-    for farm_name, proof in proofs.items():
-        proof_file = os.path.join(PROOFS_DIR, f"{farm_name}_proof.json")
+    for product_name, proof in proofs.items():
+        proof_file = os.path.join(PROOFS_DIR, f"{product_name}_proof.json")
         with open(proof_file, 'w') as f:
             json.dump(proof, f, indent=2)
         print(f"   Preuve sauvegardée: {proof_file}")
     
     signatures = {}
-    for farm_name, proof in proofs.items():
-        signatures[farm_name] = {
+    for product_name, proof in proofs.items():
+        signatures[product_name] = {
             "rdf_hash": proof["rdf_hash"],
             "timestamp": proof["timestamp"],
             "signature": proof.get("signature", {})
@@ -159,22 +203,6 @@ def save_proofs(proofs):
     print(f"   Signatures combinées sauvegardées: {signatures_file}")
     return signatures_file
 
-def verify_proof_integrity(proof):
-    """Verify the integrity of a proof"""
-    try:
-        rdf_data = proof["rdf_data"]
-        computed_hash = hashlib.sha256(rdf_data.encode('utf-8')).hexdigest()
-        
-        if computed_hash == proof["rdf_hash"]:
-            return True
-        else:
-            print(f"   Erreur de hash pour {proof['farm_id']}")
-            return False
-            
-    except Exception as e:
-        print(f"   Erreur de vérification: {e}")
-        return False
-
 def main():
     print("Génération des preuves cryptographiques pour certification bio")
     print("Création de preuves immuables pour blockchain\n")
@@ -183,31 +211,31 @@ def main():
     
     try:
         print("1. Récupération des données de certification...")
-        farms_data = get_farm_certification_data()
-        print(f"   {len(farms_data)} fermes trouvées")
+        products_data = get_product_certification_data()
+        print(f"   {len(products_data)} produits trouvés")
         
         print("\n2. Génération des preuves RDF...")
         proofs = {}
         
-        for farm_name, farm_data in farms_data.items():
-            print(f"   Traitement de {farm_name}...")
+        for product_name, product_data in products_data.items():
+            print(f"   Traitement de {product_name}...")
             
-            rdf_data = create_rdf_proof_for_farm(farm_name, farm_data)
-            proof = generate_cryptographic_proof(farm_name, rdf_data)
+            rdf_data = create_rdf_proof_for_product(product_name, product_data)
+            proof = generate_cryptographic_proof(product_name, rdf_data)
             
             if verify_proof_integrity(proof):
-                proofs[farm_name] = proof
-                print(f"   Preuve générée et vérifiée pour {farm_name}")
+                proofs[product_name] = proof
+                print(f"   Preuve générée et vérifiée pour {product_name}")
             else:
-                print(f"   Erreur de vérification pour {farm_name}")
+                print(f"   Erreur de vérification pour {product_name}")
         
         print("\n3. Sauvegarde des preuves...")
         signatures_file = save_proofs(proofs)
         
         print(f"\nRésumé de génération:")
         print(f"   Preuves générées: {len(proofs)}")
-        print(f"   Fermes bio: {len([p for p in proofs.values() if 'OrganicFarm' in p['rdf_data']])}")
-        print(f"   Fermes non-bio: {len([p for p in proofs.values() if 'NonOrganicFarm' in p['rdf_data']])}")
+        print(f"   Produits bio: {len([p for p in proofs.values() if 'OrganicProduct' in p['rdf_data']])}")
+        print(f"   Produits non-bio: {len([p for p in proofs.values() if 'NonOrganicProduct' in p['rdf_data']])}")
         print(f"   Fichier signatures: {signatures_file}")
         
         print("\nGénération des preuves cryptographiques terminée!")
@@ -217,5 +245,5 @@ def main():
         print(f"Erreur lors de la génération des preuves: {e}")
         raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

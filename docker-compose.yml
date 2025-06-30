@@ -36,6 +36,7 @@ services:
       - ./rules:/staging/rules
       - ./queries:/staging/queries
       - fuseki_data:/fuseki
+      - ./jena/organic_rules.rules:/staging/jena/organic_rules.rules:ro
     environment:
       - ADMIN_PASSWORD=admin123
       - JVM_ARGS=-Xmx2g

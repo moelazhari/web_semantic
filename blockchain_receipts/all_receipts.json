@@ -1,0 +1,112 @@
+{
+  "Apples_Batch1": {
+    "transaction_hash": "0xc5927288209b6e4f1e90c1a04d98dabc13fc156bc619350ce0f6e496cb52e4b6",
+    "block_number": 1,
+    "certification_data": {
+      "product_id": "Apples_Batch1",
+      "rdf_hash": "118a79afc31af624f2a7980a1d59b4171a9fb80b4f3a426023e836fe47c62670",
+      "timestamp": "2025-06-30T03:45:53.266844",
+      "regulation": "EU_2018_848"
+    },
+    "status": "success"
+  },
+  "Bananas_Batch1": {
+    "transaction_hash": "0x063b84cbd57ec76caf11610463b1ecb843862ca6faeb029cd822a23dae4b7499",
+    "block_number": 2,
+    "certification_data": {
+      "product_id": "Bananas_Batch1",
+      "rdf_hash": "f64cd7eac9ef82818266392883e10c8ef73d71729d29219f7d55c9c1d3d9f9d5",
+      "timestamp": "2025-06-30T03:45:53.287689",
+      "regulation": "EU_2018_848"
+    },
+    "status": "success"
+  },
+  "Carrots_Batch1": {
+    "transaction_hash": "0x61663fe788793ce1a47ae507cf3d232afac0e4c1e7b10e11f3c3ebe67370e3ae",
+    "block_number": 3,
+    "certification_data": {
+      "product_id": "Carrots_Batch1",
+      "rdf_hash": "f039861c16bd37ff9f039465a67d3a043a0ea07c4b7194fbe45a4d4c36be4d42",
+      "timestamp": "2025-06-30T03:45:53.306991",
+      "regulation": "EU_2018_848"
+    },
+    "status": "success"
+  },
+  "Milk_Batch1": {
+    "transaction_hash": "0x9d96f9b0ababca190ab55bfcc936e92a410bce0a1bb62d56c2c85635e8c31a42",
+    "block_number": 4,
+    "certification_data": {
+      "product_id": "Milk_Batch1",
+      "rdf_hash": "03b4740a3065d1ba175c03e9165b22caf7e167182142e0d5fba1213ea68ce17c",
+      "timestamp": "2025-06-30T03:45:53.325693",
+      "regulation": "EU_2018_848"
+    },
+    "status": "success"
+  },
+  "Oranges_Batch1": {
+    "transaction_hash": "0x5dc799ef907c207d815b16f59076ff4d05bf16cd674be9a0b0e10876095c5454",
+    "block_number": 5,
+    "certification_data": {
+      "product_id": "Oranges_Batch1",
+      "rdf_hash": "57c77c95c048a987cd3087c64ef738b400bd97efb79548b12d66a02b62f0b610",
+      "timestamp": "2025-06-30T03:45:53.342984",
+      "regulation": "EU_2018_848"
+    },
+    "status": "success"
+  },
+  "Potatoes_Batch1": {
+    "transaction_hash": "0xda31ccc5866ec15bc13434709d92b0ba1a080084082f7ea0ec1aa020b736330f",
+    "block_number": 6,
+    "certification_data": {
+      "product_id": "Potatoes_Batch1",
+      "rdf_hash": "72ed5367910cc7b6c97f16599713fd0b1d8ad626cc5ee0aece5894ddf34e7c11",
+      "timestamp": "2025-06-30T03:45:53.359819",
+      "regulation": "EU_2018_848"
+    },
+    "status": "success"
+  },
+  "Rice_Batch1": {
+    "transaction_hash": "0xabea914ea181f59af41013f26f121e07c4a712b29c0e84ad83f1883bb8d74913",
+    "block_number": 7,
+    "certification_data": {
+      "product_id": "Rice_Batch1",
+      "rdf_hash": "091e07ec53ecf398fae825b1410ea50db95c7030474910ad98258454ef72eb2c",
+      "timestamp": "2025-06-30T03:45:53.376639",
+      "regulation": "EU_2018_848"
+    },
+    "status": "success"
+  },
+  "Tomatoes_Batch1": {
+    "transaction_hash": "0xc08ee839800f02ee03e5ed7ffa0ad70b6633c74953aee45b4b4f8feb76d98204",
+    "block_number": 8,
+    "certification_data": {
+      "product_id": "Tomatoes_Batch1",
+      "rdf_hash": "d972a408a154c7d54e80e0f5807e959056d532ba3c3f9011c7fad4e23760e6b4",
+      "timestamp": "2025-06-30T03:45:53.393980",
+      "regulation": "EU_2018_848"
+    },
+    "status": "success"
+  },
+  "Wheat_Batch1": {
+    "transaction_hash": "0xa41bf4d477fbd5abb2b119995900d69e05d636333924c4213b366b080331239d",
+    "block_number": 9,
+    "certification_data": {
+      "product_id": "Wheat_Batch1",
+      "rdf_hash": "92ecd5b911ec52b1cba9b230de020d5592dc52f51919b5920d3e90334844b612",
+      "timestamp": "2025-06-30T03:45:53.412641",
+      "regulation": "EU_2018_848"
+    },
+    "status": "success"
+  },
+  "Yogurt_Batch1": {
+    "transaction_hash": "0x85c317b3b771978c66d9f000d07c09d6f18267945ebe9990f139e4d35a5dfb9b",
+    "block_number": 10,
+    "certification_data": {
+      "product_id": "Yogurt_Batch1",
+      "rdf_hash": "8be7a15fc648f2d99800da309dc67a680428ee3a1617c0b844b0f295f17584e4",
+      "timestamp": "2025-06-30T03:45:53.428662",
+      "regulation": "EU_2018_848"
+    },
+    "status": "success"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "total_products": 10,
+  "organic_products": 0,
+  "non_organic_products": 0,
+  "by_category": {
+    "Cereals": 2,
+    "DairyProducts": 2,
+    "Fruits": 3,
+    "Vegetables": 3
+  },
+  "violations": 8,
+  "timestamp": "2025-06-30T03:45:51.958715"
+}

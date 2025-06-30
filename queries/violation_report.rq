@@ -1,11 +1,23 @@
 PREFIX : <http://example.org/organic#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT ?farm ?sample ?pesticide ?value ?violationReason WHERE {
-    ?farm rdf:type :NonOrganicFarm .
-    ?farm :hasSoilSample ?sample .
-    ?sample :hasPesticide ?pesticide .
-    ?sample :hasValue ?value .
-    OPTIONAL { ?farm :hasViolationReason ?violationReason }
+SELECT ?product ?category ?chemical ?value ?violationReason WHERE {
+    ?product rdf:type :NonOrganicProduct ;
+            :hasCategory ?category ;
+            :hasSample ?sample ;
+            :hasViolationReason ?violationReason .
+    ?sample :hasChemical ?chemical ;
+            :hasValue ?value .
+    
+    # Get chemical type
+    OPTIONAL {
+        ?chemical rdf:type :ProhibitedChemical .
+        BIND("Prohibited" AS ?chemicalType)
+    }
+    OPTIONAL {
+        ?chemical rdf:type :AllowedChemical .
+        ?chemical :maxAllowedLevel ?maxLevel .
+        BIND("Exceeds Limit" AS ?chemicalType)
+    }
 }
-ORDER BY ?farm
+ORDER BY ?product ?chemical

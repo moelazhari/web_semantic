@@ -1,7 +1,10 @@
 PREFIX : <http://example.org/organic#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT ?farm ?reason WHERE {
-    ?farm rdf:type :NonOrganicFarm .
-    OPTIONAL { ?farm :hasViolationReason ?reason }
-} 
+SELECT ?product ?reason ?status
+WHERE {
+    ?product rdf:type :NonOrganicProduct .
+    ?product :hasViolationReason ?reason .
+    ?product :certificationStatus ?status .
+}
+ORDER BY ?product 

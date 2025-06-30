@@ -1,0 +1,14 @@
+{
+  "product_id": "Tomatoes_Batch1",
+  "timestamp": "2025-06-30T03:45:53.393980",
+  "rdf_hash": "d972a408a154c7d54e80e0f5807e959056d532ba3c3f9011c7fad4e23760e6b4",
+  "regulation": "EU_2018_848",
+  "proof_type": "ORGANIC_CERTIFICATION",
+  "rdf_data": "@prefix organic: <http://example.org/organic#> .\n\norganic:Tomatoes_Batch1 a organic:OrganicProduct ;\n    organic:certificationDate <http://example.org/organic#2025-06-30T03:45:53.393538> ;\n    organic:certificationStatus organic:CERTIFIED ;\n    organic:hasCategory organic:Vegetables ;\n    organic:hasSample organic:Sample_Tomatoes_Batch1_3 ;\n    organic:regulation organic:EU_2018_848 .\n\norganic:Sample_Tomatoes_Batch1_3 organic:hasChemical organic:Sulfur ;\n    organic:hasValue organic:0.12 .\n\n",
+  "signature": {
+    "r": 113620330153212593854250415329612600527233678273478501286401126950714356230544,
+    "s": 7887354054736314294071953226349352766230627566292475827407287587182559024914,
+    "v": 28,
+    "signer_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+  }
+}

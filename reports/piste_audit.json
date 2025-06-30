@@ -1,0 +1,188 @@
+{
+  "timestamp": "2025-06-30T03:45:51.994290",
+  "summary": {
+    "total_products": 10,
+    "organic_products": 0,
+    "non_organic_products": 0,
+    "by_category": {
+      "Cereals": 2,
+      "DairyProducts": 2,
+      "Fruits": 3,
+      "Vegetables": 3
+    },
+    "violations": 8,
+    "timestamp": "2025-06-30T03:45:51.958715"
+  },
+  "violations": [
+    {
+      "product": "Milk_Batch1",
+      "category": "DairyProducts",
+      "chemical": "DDT",
+      "value": 0.01,
+      "violation_reason": "Contains prohibited chemical"
+    },
+    {
+      "product": "Potatoes_Batch1",
+      "category": "Vegetables",
+      "chemical": "Glyphosate",
+      "value": 0.04,
+      "violation_reason": "Contains prohibited chemical"
+    },
+    {
+      "product": "Rice_Batch1",
+      "category": "Cereals",
+      "chemical": "Atrazine",
+      "value": 0.03,
+      "violation_reason": "Contains prohibited chemical"
+    },
+    {
+      "product": "Wheat_Batch1",
+      "category": "Cereals",
+      "chemical": "Glyphosate",
+      "value": 0.02,
+      "violation_reason": "Contains prohibited chemical"
+    }
+  ],
+  "certifications": [
+    {
+      "product": "Apples_Batch1",
+      "category": "Fruits",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:14.495096"
+    },
+    {
+      "product": "Apples_Batch1",
+      "category": "Fruits",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:51.119085"
+    },
+    {
+      "product": "Bananas_Batch1",
+      "category": "Fruits",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:14.495927"
+    },
+    {
+      "product": "Bananas_Batch1",
+      "category": "Fruits",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:51.119898"
+    },
+    {
+      "product": "Carrots_Batch1",
+      "category": "Vegetables",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:14.495417"
+    },
+    {
+      "product": "Carrots_Batch1",
+      "category": "Vegetables",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:51.119404"
+    },
+    {
+      "product": "Milk_Batch1",
+      "category": "DairyProducts",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:14.495316"
+    },
+    {
+      "product": "Milk_Batch1",
+      "category": "DairyProducts",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:51.119304"
+    },
+    {
+      "product": "Oranges_Batch1",
+      "category": "Fruits",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:14.495526"
+    },
+    {
+      "product": "Oranges_Batch1",
+      "category": "Fruits",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:51.119504"
+    },
+    {
+      "product": "Potatoes_Batch1",
+      "category": "Vegetables",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:14.495821"
+    },
+    {
+      "product": "Potatoes_Batch1",
+      "category": "Vegetables",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:51.119794"
+    },
+    {
+      "product": "Rice_Batch1",
+      "category": "Cereals",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:14.495625"
+    },
+    {
+      "product": "Rice_Batch1",
+      "category": "Cereals",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:51.119602"
+    },
+    {
+      "product": "Tomatoes_Batch1",
+      "category": "Vegetables",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:14.492644"
+    },
+    {
+      "product": "Tomatoes_Batch1",
+      "category": "Vegetables",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:51.116663"
+    },
+    {
+      "product": "Wheat_Batch1",
+      "category": "Cereals",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:14.495215"
+    },
+    {
+      "product": "Wheat_Batch1",
+      "category": "Cereals",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:51.119202"
+    },
+    {
+      "product": "Yogurt_Batch1",
+      "category": "DairyProducts",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:14.495717"
+    },
+    {
+      "product": "Yogurt_Batch1",
+      "category": "DairyProducts",
+      "status": "CERTIFIED",
+      "certification_date": "N/A",
+      "production_date": "2025-06-30T03:45:51.119693"
+    }
+  ]
+}

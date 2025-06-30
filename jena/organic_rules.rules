@@ -1,0 +1,28 @@
+# Rules for organic product certification
+
+@prefix : <http://example.org/organic#>
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Rule 1: Product is non-organic if it contains prohibited chemicals (Priority 1)
+[rule1: (?p rdf:type :Product), (?p :hasSample ?s), (?s :hasChemical ?c), (?c rdf:type :ProhibitedChemical) 
+    -> (?p rdf:type :NonOrganicProduct), (?p :violatesRegulation :EU_2018_848), (?p :certificationStatus "REJECTED")]
+
+# Rule 2: Product is non-organic if chemical levels exceed limits (Priority 1)
+[rule2a: (?p rdf:type :Product), (?p :hasSample ?s), (?s :hasChemical :Sulfur), (?s :hasValue ?v), greaterThan(?v, 0.25) 
+    -> (?p rdf:type :NonOrganicProduct), (?p :violatesRegulation :EU_2018_848), (?p :certificationStatus "REJECTED")]
+[rule2b: (?p rdf:type :Product), (?p :hasSample ?s), (?s :hasChemical :Pyrethrin), (?s :hasValue ?v), greaterThan(?v, 0.15) 
+    -> (?p rdf:type :NonOrganicProduct), (?p :violatesRegulation :EU_2018_848), (?p :certificationStatus "REJECTED")]
+[rule2c: (?p rdf:type :Product), (?p :hasSample ?s), (?s :hasChemical :CopperSulfate), (?s :hasValue ?v), greaterThan(?v, 0.20) 
+    -> (?p rdf:type :NonOrganicProduct), (?p :violatesRegulation :EU_2018_848), (?p :certificationStatus "REJECTED")]
+
+# Rule 3: Product is organic if it doesn't violate any rules (Priority 2)
+[rule3: (?p rdf:type :Product), noValue(?p, rdf:type, :NonOrganicProduct), noValue(?p, :certificationStatus, "REJECTED")
+    -> (?p rdf:type :OrganicProduct), (?p :hasCertification :OrganicCertification), (?p :certificationStatus "CERTIFIED")]
+
+# Rule 4: Assign violation reasons to non-organic products (Priority 3)
+[rule4a: (?p rdf:type :NonOrganicProduct), (?p :hasSample ?s), (?s :hasChemical ?c), (?c rdf:type :ProhibitedChemical) 
+    -> (?p :hasViolationReason "Contains prohibited chemical")]
+[rule4b: (?p rdf:type :NonOrganicProduct), (?p :hasSample ?s), (?s :hasChemical ?c), (?c rdf:type :AllowedChemical), 
+    (?s :hasValue ?v), (?c :maxAllowedLevel ?max), greaterThan(?v, ?max) 
+    -> (?p :hasViolationReason "Chemical level exceeds limit")] 

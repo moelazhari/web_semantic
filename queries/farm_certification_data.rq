@@ -1,16 +1,17 @@
 PREFIX : <http://example.org/organic#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT ?farm ?farmType ?sample ?pesticide ?value ?certStatus WHERE {
-    ?farm :hasSoilSample ?sample .
-    ?sample :hasPesticide ?pesticide .
-    ?sample :hasValue ?value .
+SELECT ?product ?productType ?category ?sample ?chemical ?value ?certStatus WHERE {
+    ?product :hasSample ?sample ;
+             :hasCategory ?category .
+    ?sample :hasChemical ?chemical ;
+            :hasValue ?value .
     
     OPTIONAL {
-        ?farm rdf:type ?farmType .
-        FILTER(?farmType IN (:OrganicFarm, :NonOrganicFarm))
+        ?product rdf:type ?productType .
+        FILTER(?productType IN (:OrganicProduct, :NonOrganicProduct))
     }
     
-    OPTIONAL { ?farm :certificationStatus ?certStatus }
+    OPTIONAL { ?product :certificationStatus ?certStatus }
 }
-ORDER BY ?farm ?sample 
+ORDER BY ?product ?sample 

@@ -1,9 +1,11 @@
 PREFIX : <http://example.org/organic#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-SELECT ?farm ?certStatus ?certDate WHERE {
-    ?farm rdf:type :OrganicFarm .
-    OPTIONAL { ?farm :certificationStatus ?certStatus }
-    OPTIONAL { ?farm :certificationDate ?certDate }
+SELECT ?product ?category ?certStatus ?certDate ?productionDate WHERE {
+    ?product rdf:type :OrganicProduct ;
+            :hasCategory ?category .
+    OPTIONAL { ?product :certificationStatus ?certStatus }
+    OPTIONAL { ?product :certificationDate ?certDate }
+    OPTIONAL { ?product :hasProductionDate ?productionDate }
 }
-ORDER BY ?farm 
+ORDER BY ?product 

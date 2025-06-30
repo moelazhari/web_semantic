@@ -2,17 +2,18 @@ PREFIX : <http://example.org/organic#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT ?farm ?farmType ?sample ?pesticide ?value ?certStatus ?violationReason WHERE {
-    ?farm :hasSoilSample ?sample .
-    ?sample :hasPesticide ?pesticide .
-    ?sample :hasValue ?value .
+SELECT ?product ?category ?sample ?chemical ?value ?certStatus ?violationReason WHERE {
+    ?product :hasSample ?sample ;
+             :hasCategory ?category .
+    ?sample :hasChemical ?chemical ;
+            :hasValue ?value .
     
     OPTIONAL {
-        ?farm rdf:type ?farmType .
-        FILTER(?farmType IN (:OrganicFarm, :NonOrganicFarm))
+        ?product rdf:type ?productType .
+        FILTER(?productType IN (:OrganicProduct, :NonOrganicProduct))
     }
     
-    OPTIONAL { ?farm :certificationStatus ?certStatus }
-    OPTIONAL { ?farm :hasViolationReason ?violationReason }
+    OPTIONAL { ?product :certificationStatus ?certStatus }
+    OPTIONAL { ?product :hasViolationReason ?violationReason }
 }
-ORDER BY ?farm ?sample
+ORDER BY ?product ?sample

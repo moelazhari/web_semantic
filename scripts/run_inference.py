@@ -57,77 +57,130 @@ def run_inference_rules():
     
     print(f"{Fore.MAGENTA}🧠 Exécution des règles d'inférence sémantique...")
     
-    try:
-        swrl_rules = load_swrl_rules()
-        print(f"{Fore.CYAN}   Règles SWRL chargées pour le raisonnement")
-        print(f"{Fore.YELLOW}   Application des règles via SPARQL updates...")
-        
-    except Exception as e:
-        print(f"{Fore.RED}❌ Erreur lors du chargement des règles SWRL: {e}{Style.RESET_ALL}")
-        print(f"{Fore.YELLOW}   Utilisation des règles SPARQL de fallback...")
+    # First, clear any existing classifications and certifications
+    clear_query = """
+    PREFIX : <http://example.org/organic#>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     
+    DELETE {
+        ?product rdf:type :OrganicProduct .
+        ?product rdf:type :NonOrganicProduct .
+        ?product :hasCertification ?cert .
+        ?product :certificationStatus ?status .
+        ?product :violatesRegulation ?reg .
+        ?product :hasViolationReason ?reason .
+    }
+    WHERE {
+        ?product rdf:type :Product .
+        OPTIONAL { ?product rdf:type :OrganicProduct }
+        OPTIONAL { ?product rdf:type :NonOrganicProduct }
+        OPTIONAL { ?product :hasCertification ?cert }
+        OPTIONAL { ?product :certificationStatus ?status }
+        OPTIONAL { ?product :violatesRegulation ?reg }
+        OPTIONAL { ?product :hasViolationReason ?reason }
+    }
+    """
+    
+    execute_sparql_update(clear_query, "Nettoyage des classifications existantes")
+    
+    # Identify non-organic products due to prohibited chemicals
     inference_query_1 = """
     PREFIX : <http://example.org/organic#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     
     INSERT {
-        ?farm rdf:type :NonOrganicFarm .
-        ?farm :violatesRegulation :EU_2018_848 .
-        ?farm :hasViolationReason ?pesticide .
+        ?product rdf:type :NonOrganicProduct .
+        ?product :violatesRegulation :EU_2018_848 .
+        ?product :hasViolationReason "Contains prohibited chemical" .
+        ?product :certificationStatus "REJECTED" .
     }
     WHERE {
-        ?farm :hasSoilSample ?sample .
-        ?sample :hasPesticide ?pesticide .
-        ?sample :hasValue ?value .
+        ?product rdf:type :Product .
+        ?product :hasSample ?sample .
+        ?sample :hasChemical ?chemical .
+        ?chemical rdf:type :ProhibitedChemical .
         
-        FILTER(?pesticide NOT IN (:Glyphosate, :Pyrethrin))
+        FILTER NOT EXISTS {
+            ?product rdf:type :NonOrganicProduct
+        }
+        FILTER NOT EXISTS {
+            ?product rdf:type :OrganicProduct
+        }
     }
     """
     
+    # Identify non-organic products due to excessive chemical levels
     inference_query_2 = """
     PREFIX : <http://example.org/organic#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     
     INSERT {
-        ?farm rdf:type :NonOrganicFarm .
-        ?farm :violatesRegulation :EU_2018_848 .
-        ?farm :hasViolationReason "Pesticide level exceeds organic limits" .
+        ?product rdf:type :NonOrganicProduct .
+        ?product :violatesRegulation :EU_2018_848 .
+        ?product :hasViolationReason ?reason .
+        ?product :certificationStatus "REJECTED" .
     }
     WHERE {
-        ?farm :hasSoilSample ?sample .
-        ?sample :hasPesticide ?pesticide .
+        ?product rdf:type :Product .
+        ?product :hasSample ?sample .
+        ?sample :hasChemical ?chemical .
         ?sample :hasValue ?value .
+        ?chemical rdf:type :AllowedChemical .
+        ?chemical :maxAllowedLevel ?max .
         
-        FILTER((?pesticide = :Glyphosate && ?value > 0.25) || 
-               (?pesticide = :Pyrethrin && ?value > 0.15))
+        BIND(CONCAT("Chemical ", STR(?chemical), " exceeds limit of ", STR(?max)) AS ?reason)
+        
+        FILTER(?value > ?max)
+        FILTER NOT EXISTS {
+            ?product rdf:type :NonOrganicProduct
+        }
+        FILTER NOT EXISTS {
+            ?product rdf:type :OrganicProduct
+        }
     }
     """
     
+    # Certify remaining products as organic
     inference_query_3 = """
     PREFIX : <http://example.org/organic#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     
     INSERT {
-        ?farm rdf:type :OrganicFarm .
-        ?farm :hasCertification :OrganicCertification .
-        ?farm :certificationDate ?date .
-        ?farm :certificationStatus "CERTIFIED" .
+        ?product rdf:type :OrganicProduct .
+        ?product :hasCertification :OrganicCertification .
+        ?product :certificationStatus "CERTIFIED" .
     }
     WHERE {
-        ?farm :hasSoilSample ?sample .
+        ?product rdf:type :Product .
         
-        FILTER NOT EXISTS {
-            ?farm rdf:type :NonOrganicFarm .
+        # Check that all chemicals are allowed and within limits
+        NOT EXISTS {
+            ?product :hasSample ?s1 .
+            ?s1 :hasChemical ?c1 .
+            ?c1 rdf:type :ProhibitedChemical .
+        }
+        NOT EXISTS {
+            ?product :hasSample ?s2 .
+            ?s2 :hasChemical ?c2 .
+            ?s2 :hasValue ?v2 .
+            ?c2 :maxAllowedLevel ?max2 .
+            FILTER(?v2 > ?max2)
         }
         
-        BIND(NOW() as ?date)
+        FILTER NOT EXISTS {
+            ?product rdf:type :NonOrganicProduct
+        }
+        FILTER NOT EXISTS {
+            ?product rdf:type :OrganicProduct
+        }
     }
     """
     
     rules = [
-        ("Identification des fermes non-bio (pesticides interdits)", inference_query_1),
+        ("Identification des produits non-bio (pesticides interdits)", inference_query_1),
         ("Vérification des limites de concentration", inference_query_2),
-        ("Certification des fermes conformes comme bio", inference_query_3)
+        ("Certification des produits conformes comme bio", inference_query_3)
     ]
     
     for desc, query in rules:
@@ -146,25 +199,25 @@ def verify_inference_results():
     
     sparql.setQuery(organic_query)
     results = sparql.query().convert()
-    organic_farms = results["results"]["bindings"]
+    organic_products = results["results"]["bindings"]
     
-    print(f"{Fore.GREEN}🌱 Fermes certifiées bio: {len(organic_farms)}{Style.RESET_ALL}")
-    for farm in organic_farms:
-        farm_name = farm["farm"]["value"].split("#")[-1]
-        status = farm.get("status", {}).get("value", "CERTIFIED")
-        print(f"{Fore.GREEN}   • {farm_name}: {status}{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}🌱 Fermes certifiées bio: {len(organic_products)}{Style.RESET_ALL}")
+    for product in organic_products:
+        product_name = product["product"]["value"].split("#")[-1]
+        status = product.get("status", {}).get("value", "CERTIFIED")
+        print(f"{Fore.GREEN}   • {product_name}: {status}{Style.RESET_ALL}")
     
     sparql.setQuery(non_organic_query)
     results = sparql.query().convert()
-    non_organic_farms = results["results"]["bindings"]
+    non_organic_products = results["results"]["bindings"]
     
-    print(f"{Fore.RED}🚫 Fermes non-bio: {len(non_organic_farms)}{Style.RESET_ALL}")
-    for farm in non_organic_farms:
-        farm_name = farm["farm"]["value"].split("#")[-1]
-        reason = farm.get("reason", {}).get("value", "Violation de réglementation")
-        print(f"{Fore.RED}   • {farm_name}: {reason}{Style.RESET_ALL}")
+    print(f"{Fore.RED}🚫 Fermes non-bio: {len(non_organic_products)}{Style.RESET_ALL}")
+    for product in non_organic_products:
+        product_name = product["product"]["value"].split("#")[-1]
+        reason = product.get("reason", {}).get("value", "Violation de réglementation")
+        print(f"{Fore.RED}   • {product_name}: {reason}{Style.RESET_ALL}")
     
-    return len(organic_farms), len(non_organic_farms)
+    return len(organic_products), len(non_organic_products)
 
 def main():
     print("Démarrage de l'inférence sémantique pour certification bio")

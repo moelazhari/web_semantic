@@ -1,28 +1,37 @@
-# SWRL rules for organic certification compliance
+# SWRL rules for organic product certification compliance
 # Based on EU Regulation 2018/848
 
-# Rule 1: Farm is non-organic if it contains prohibited pesticides
-Farm(?f) ^ hasSoilSample(?f, ?s) ^ hasPesticide(?s, ?p) ^ 
-  swrlb:notEqual(?p, #Glyphosate) ^ swrlb:notEqual(?p, #Pyrethrin) ->
-    NonOrganicFarm(?f) ^ violatesRegulation(?f, #EU_2018_848)
+# Rule 1: Product is non-organic if it contains prohibited chemicals
+Product(?p) ^ hasSample(?p, ?s) ^ hasChemical(?s, ?c) ^ 
+  ProhibitedChemical(?c) ->
+    NonOrganicProduct(?p) ^ violatesRegulation(?p, #EU_2018_848)
 
-# Rule 2: Farm is non-organic if pesticide levels exceed limits
-Farm(?f) ^ hasSoilSample(?f, ?s) ^ hasPesticide(?s, #Glyphosate) ^ 
+# Rule 2: Product is non-organic if chemical levels exceed limits
+Product(?p) ^ hasSample(?p, ?s) ^ hasChemical(?s, #Sulfur) ^ 
   hasValue(?s, ?v) ^ swrlb:greaterThan(?v, 0.25) ->
-    NonOrganicFarm(?f) ^ violatesRegulation(?f, #EU_2018_848)
+    NonOrganicProduct(?p) ^ violatesRegulation(?p, #EU_2018_848)
 
-Farm(?f) ^ hasSoilSample(?f, ?s) ^ hasPesticide(?s, #Pyrethrin) ^ 
+Product(?p) ^ hasSample(?p, ?s) ^ hasChemical(?s, #Pyrethrin) ^ 
   hasValue(?s, ?v) ^ swrlb:greaterThan(?v, 0.15) ->
-    NonOrganicFarm(?f) ^ violatesRegulation(?f, #EU_2018_848)
+    NonOrganicProduct(?p) ^ violatesRegulation(?p, #EU_2018_848)
 
-# Rule 3: Farm is organic if it doesn't violate any rules
-Farm(?f) ^ swrlb:notExists(?f, NonOrganicFarm) ->
-    OrganicFarm(?f) ^ hasCertification(?f, #OrganicCertification)
+Product(?p) ^ hasSample(?p, ?s) ^ hasChemical(?s, #CopperSulfate) ^ 
+  hasValue(?s, ?v) ^ swrlb:greaterThan(?v, 0.20) ->
+    NonOrganicProduct(?p) ^ violatesRegulation(?p, #EU_2018_848)
 
-# Rule 4: Assign certification status to organic farms
-OrganicFarm(?f) -> certificationStatus(?f, "CERTIFIED")
+# Rule 3: Product is organic if it doesn't violate any rules
+Product(?p) ^ swrlb:notExists(?p, NonOrganicProduct) ->
+    OrganicProduct(?p) ^ hasCertification(?p, #OrganicCertification)
 
-# Rule 5: Assign violation reasons to non-organic farms
-NonOrganicFarm(?f) ^ hasSoilSample(?f, ?s) ^ hasPesticide(?s, ?p) ^
-  swrlb:notEqual(?p, #Glyphosate) ^ swrlb:notEqual(?p, #Pyrethrin) ->
-    hasViolationReason(?f, ?p)
+# Rule 4: Assign certification status to organic products
+OrganicProduct(?p) -> certificationStatus(?p, "CERTIFIED")
+
+# Rule 5: Assign violation reasons to non-organic products
+NonOrganicProduct(?p) ^ hasSample(?p, ?s) ^ hasChemical(?s, ?c) ^
+  ProhibitedChemical(?c) ->
+    hasViolationReason(?p, "Contains prohibited chemical")
+
+NonOrganicProduct(?p) ^ hasSample(?p, ?s) ^ hasChemical(?s, ?c) ^
+  AllowedChemical(?c) ^ hasValue(?s, ?v) ^ maxAllowedLevel(?c, ?max) ^
+  swrlb:greaterThan(?v, ?max) ->
+    hasViolationReason(?p, "Chemical level exceeds limit")
